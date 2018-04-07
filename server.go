@@ -21,7 +21,7 @@ type User struct {
 }
 
 type Msg struct {
-  ID            string
+  ID            int
   Value         string
   User          string
   LikeNum       int
@@ -109,21 +109,22 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
   } else {
     value := r.FormValue("value")
     id := len(msg) - 1
-    session, _ := store.Get(r, "session-name")
-    name := session.Values["user"]
+    //session, _ := store.Get(r, "session-name")
+    //name := session.Values["user"]
+    name := "sb"
     msg = append(msg, Msg{id ,value, name, 0})
     log.Println(msg)
   }
 }
 
-func getMsg() {
-  if r.Method == "GET" {
-
-  } else {
-    t, _ := template.ParseFiles("index.html")
-    log.Println(t.Execute(w, nil))
-  }
-}
+// func getMsg() {
+//   if r.Method == "GET" {
+//     return msg
+//   } else {
+//     t, _ := template.ParseFiles("index.html")
+//     log.Println(t.Execute(w, nil))
+//   }
+// }
 
 
 func HomePage(w http.ResponseWriter, r *http.Request){
