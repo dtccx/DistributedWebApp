@@ -1,35 +1,137 @@
 package main
 
 import (
-  "html/template"
-  "log"
+  "fmt"
   "net/http"
-  "time"
+  "log"
+  "html/template"
+  "github.com/gorilla/sessions"
 )
 
-type PageVariables struct {
-	Date         string
-	Time         string
+var user map[string]User
+var msg []Msg
+//list msg
+//var msg map[int]Msg
+
+var store = sessions.NewCookieStore([]byte("something-very-secret"))
+
+type User struct {
+	Name          string
+	Password      string
 }
+
+type Msg struct {
+  ID            string
+  Value         string
+  User          string
+  LikeNum       int
+}
+
 
 func main() {
-	http.HandleFunc("/", index)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+  user = make(map[string]User)
+  http.HandleFunc("/", HomePage)
+  http.HandleFunc("/login", login)
+  http.HandleFunc("/signup", signup)
+  log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func index(w http.ResponseWriter, r *http.Request){
 
-    now := time.Now() // find the time right now
-    HomePageVars := PageVariables{ //store the date and time in a struct
-      Date: now.Format("02-01-2006"),
-      Time: now.Format("15:04:05"),
+
+
+func MyHandler(w http.ResponseWriter, r *http.Request) {
+  // Get a session. We're ignoring the error resulted from decoding an
+  // existing session: Get() always returns a session, even if empty.
+  session, _ := store.Get(r, "session-name")
+  // Set some session values.
+  session.Values["foo"] = "bar"
+  session.Values[42] = 43
+  // Save it before we write to the response/return from the handler.
+  session.Save(r, w)
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+  fmt.Println("method:", r.Method)
+  if r.Method == "GET" {
+    t, _ := template.ParseFiles("index.html")
+    log.Println(t.Execute(w, nil))
+  } else {
+    //name := r.FormValue("name")
+    name := r.FormValue("user")
+    password := r.FormValue("password")
+    i, ok := user[name]
+    if(ok && i.Password == password){
+      log.Println("log success")
+      session, _ := store.Get(r, "session-name")
+      // Set some session values.
+      session.Values["authenticated"] = true
+      session.Values["user"] = name
+      // Save it before we write to the response/return from the handler.
+      session.Save(r, w)
+    }else {
+      //log fails
+      log.Println("log fails")
+    }
+    fmt.Println("username:", r.Form["user"])
+		fmt.Println("password:", r.Form["password"])
+  }
+}
+
+func signup(w http.ResponseWriter, r *http.Request) {
+  fmt.Println("method:", r.Method)
+  if r.Method == "GET" {
+    t, _ := template.ParseFiles("index.html")
+    log.Println(t.Execute(w, nil))
+  } else {
+    r.ParseForm()
+    fmt.Println(r.Form)
+    name := r.FormValue("user")
+    password := r.FormValue("password")
+    log.Print(name)
+    log.Print(password)
+    _, ok := user[name]
+    if(ok){
+      //user exsit
+      log.Println("User already exist")
+
+    }else {
+      user[name] = User{name, password}
+      log.Print("map:", user)
     }
 
+  }
+}
+
+func sendMsg(w http.ResponseWriter, r *http.Request) {
+  if r.Method == "GET" {
+    t, _ := template.ParseFiles("index.html")
+    log.Println(t.Execute(w, nil))
+  } else {
+    value := r.FormValue("value")
+    id := len(msg) - 1
+    session, _ := store.Get(r, "session-name")
+    name := session.Values["user"]
+    msg = append(msg, Msg{id ,value, name, 0})
+    log.Println(msg)
+  }
+}
+
+func getMsg() {
+  if r.Method == "GET" {
+
+  } else {
+    t, _ := template.ParseFiles("index.html")
+    log.Println(t.Execute(w, nil))
+  }
+}
+
+
+func HomePage(w http.ResponseWriter, r *http.Request){
     t, err := template.ParseFiles("index.html") //parse the html file homepage.html
     if err != nil { // if there is an error
   	  log.Print("template parsing error: ", err) // log it
   	}
-    err = t.Execute(w, HomePageVars) //execute the template and pass it the HomePageVars struct to fill in the gaps
+    err = t.Execute(w, nil) //execute the template and pass it the HomePageVars struct to fill in the gaps
     if err != nil { // if there is an error
   	  log.Print("template executing error: ", err) //log it
   	}
