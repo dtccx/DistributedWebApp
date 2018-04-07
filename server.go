@@ -31,15 +31,15 @@ type Msg struct {
 func main() {
   user = make(map[string]User)
   http.HandleFunc("/", HomePage)
-  http.HandleFunc("/login", login)
-  http.HandleFunc("/signup", signup)
+  http.HandleFunc("/User/Login", login)
+  http.HandleFunc("/User/Register", signup)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 
 
 
-func MyHandler(w http.ResponseWriter, r *http.Request) {
+func MyHandler(w http.ResponseWriter, r *http.Request){
   // Get a session. We're ignoring the error resulted from decoding an
   // existing session: Get() always returns a session, even if empty.
   session, _ := store.Get(r, "session-name")
@@ -51,11 +51,6 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("method:", r.Method)
-  if r.Method == "GET" {
-    t, _ := template.ParseFiles("index.html")
-    log.Println(t.Execute(w, nil))
-  } else {
     //name := r.FormValue("name")
     name := r.FormValue("user")
     password := r.FormValue("password")
@@ -68,21 +63,17 @@ func login(w http.ResponseWriter, r *http.Request) {
       session.Values["user"] = name
       // Save it before we write to the response/return from the handler.
       session.Save(r, w)
+      fmt.Fprintf(w, "true")
     }else {
       //log fails
       log.Println("log fails")
     }
-    fmt.Println("username:", r.Form["user"])
-		fmt.Println("password:", r.Form["password"])
-  }
+
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
   fmt.Println("method:", r.Method)
   if r.Method == "GET" {
-    t, _ := template.ParseFiles("index.html")
-    log.Println(t.Execute(w, nil))
-  } else {
     r.ParseForm()
     fmt.Println(r.Form)
     name := r.FormValue("user")
@@ -99,6 +90,9 @@ func signup(w http.ResponseWriter, r *http.Request) {
       log.Print("map:", user)
     }
 
+  } else {
+    t, _ := template.ParseFiles("index.html")
+    log.Println(t.Execute(w, nil))
   }
 }
 

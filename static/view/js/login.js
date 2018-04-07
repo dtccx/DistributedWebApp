@@ -2,7 +2,7 @@ var url = "http://localhost:8080";
 
 $( "#btnReg" ).click(function() {
   alert("btnReg")
-  $.get( url+"/User/Register",{userName:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
+  $.get( url+"/User/Register",{user:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
       console.log(data);
     	if(data=="0") alert("User Name is occupied, try another one.");
     	else{
@@ -14,9 +14,10 @@ $( "#btnReg" ).click(function() {
 });
 
 $("#btnLogin").click(function(){
-	$.get( url+"/User/Login",{userName:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
+	$.get( url+"/User/Login",{user:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
       console.log("yaayay");
-      var loginSuccess = data==true;
+      console.log(data);
+      var loginSuccess = data=="true";
   		if(loginSuccess){
   			window.location.replace(url);
   		}
