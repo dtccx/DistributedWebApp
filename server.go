@@ -29,8 +29,11 @@ type Msg struct {
 
 
 func main() {
+  fs := http.FileServer(http.Dir("static"))
+  http.Handle("/", fs)
+
   user = make(map[string]User)
-  http.HandleFunc("/", HomePage)
+  // http.HandleFunc("/", HomePage)
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
   log.Fatal(http.ListenAndServe(":8080", nil))
