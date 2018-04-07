@@ -87,6 +87,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
     if(ok){
       //user exsit
       log.Println("User already exist")
+      fmt.Fprintf(w, "0") //exsit
 
     }else {
       user[name] = User{name, password}

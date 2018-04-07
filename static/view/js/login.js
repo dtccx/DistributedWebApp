@@ -7,7 +7,8 @@ $( "#btnReg" ).click(function() {
     	if(data=="0") alert("User Name is occupied, try another one.");
     	else{
     		console.log("Start replace");
-    		window.location.replace(url);
+        alert("Sign Up Successfully, you can login now");
+    		window.location.replace(url + "/home.html");
     		console.log("End replace");
     	}
   	});
