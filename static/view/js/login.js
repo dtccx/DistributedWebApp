@@ -20,7 +20,7 @@ $("#btnLogin").click(function(){
       console.log(data);
       var loginSuccess = data=="true";
   		if(loginSuccess){
-  			window.location.replace(url);
+  			window.location.replace(url + "/home.html");
   		}
   		else{
   			alert("Either the Username or the password is incorrect");
