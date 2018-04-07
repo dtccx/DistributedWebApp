@@ -1,0 +1,141 @@
+/*body {
+     margin: 0;
+     background: url('header.jpg');
+     background-size: 1440px 850px;
+     background-repeat:no-repeat;
+    display: compact;
+     font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}*/
+html { 
+  background: url(header.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#loginDialog{ 
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    top: 50%;
+  	left: 50%;
+    margin: -200px 0 0 -200px;
+    padding: 20px;
+    text-align: center;
+/*    background: #fff;*/
+}
+
+.ui{
+	background-color: rgba(1, 1, 1, 0.3);
+	/*opacity: 0.3;*/
+	/*background-color: yellow;*/
+	color: white;
+}
+
+#custom-search-input{
+    padding: 3px;
+    border: solid 1px #E4E4E4;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+#custom-search-input input{
+    border: 0;
+    box-shadow: none;
+}
+
+#custom-search-input button{
+    margin: 2px 0 0 0;
+    background: none;
+    box-shadow: none;
+    border: 0;
+    color: #666666;
+    padding: 0 8px 0 10px;
+    border-left: solid 1px #ccc;
+}
+
+#custom-search-input button:hover{
+    border: 0;
+    box-shadow: none;
+    border-left: solid 1px #ccc;
+}
+
+#custom-search-input .glyphicon-search{
+    font-size: 23px;
+}
+
+#search-bar{ 
+    position: absolute;
+    width: 500px;
+    height: 400px;
+    top: 40%;
+  	left: 47%;
+    margin: -200px 0 0 -200px;
+    padding: 20px;
+    text-align: center;
+/*    background: #fff;*/
+}
+
+/*#home-table, #home-table-row, #home-table-card{
+  background-color: rgba(0, 1, 1, 1);
+}*/
+#home-table{
+  position: absolute;
+/*    width: 500px;
+    height: 400px;*/
+    top: 24%;
+    left: 9%;
+}
+
+.home-table-card{
+  /*background-color: rgba(0, 0, 255, 0.05);*/
+  color:white;
+  border-style: solid;
+  overflow: scroll;
+  height: 190px;
+  text-align: center;
+}
+
+.home-table-card2{
+  background-color: rgba(0, 0, 0, 0);
+}
+
+#home-table-row{
+  margin-top:30px;
+}
+
+.track-card{
+  background-color: rgba(0, 0, 255, 0.05);
+}
+
+.artist-card{
+  background-color: rgba(0, 255, 0, 0.05);
+}
+
+.album-card{
+  background-color: rgba(255, 255, 0, 0.05);
+}
+
+.playlist-card{
+  background-color: rgba(255, 255, 0, 0.05);
+}
+
+#back-btn{
+    position: absolute;
+    top: 17.9%;
+    left: 29%;
+}
+
+#trace{
+  position: absolute;
+    top: 9%;
+    left: 8%;
+    color:white;
+}
+
+
+
+
+
+
