@@ -1,4 +1,7 @@
 # DistributedWebApp
+# Group members
+**Changxing Cao**
+**Xinglun Xu**
 
 Time to create a fantastic product that will make you gazillions!!    
 I think no one has ever come up with this idea before, so don't share it as we will be barraged with legal cases later on if you do.    
