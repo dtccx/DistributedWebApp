@@ -1,6 +1,7 @@
-var url = "http://localhost:3000";
+var url = "http://localhost:8080";
 
 $( "#btnReg" ).click(function() {
+  alert("btnReg")
   $.get( url+"/User/Register",{userName:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
       console.log(data);
     	if(data=="0") alert("User Name is occupied, try another one.");
@@ -10,7 +11,7 @@ $( "#btnReg" ).click(function() {
     		console.log("End replace");
     	}
   	});
-}); 
+});
 
 $("#btnLogin").click(function(){
 	$.get( url+"/User/Login",{userName:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
