@@ -40,6 +40,7 @@ func main() {
   http.HandleFunc("/User/Register", signup)
   http.HandleFunc("/SendMsg", sendMsg)
   http.HandleFunc("/GetMsg", getMsg)
+  http.HandleFunc("/DelUser",delUser)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -94,7 +95,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func msgdel(w http.ResponseWriter, r *http.Request) {
+func delUser(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "user_session")
   var temp interface{} = "user"
   name := session.Values[temp].(string)
@@ -102,6 +103,8 @@ func msgdel(w http.ResponseWriter, r *http.Request) {
   if(ok) {
     delete(user, name)
   }
+  log.Println(user)
+  fmt.Fprintf(w, "0")
 }
 
 func sendMsg(w http.ResponseWriter, r *http.Request) {
