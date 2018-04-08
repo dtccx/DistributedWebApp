@@ -133,7 +133,7 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
   var msg_get []Msg
   msgnum := 3
   //everytime the num of sending
-  if(index == -1){
+  if(index == -2){
     for i := len(msg) - 1; i >= len(msg) - msgnum && i >= 0; i-- {
       msg_get = append(msg_get, msg[i])
     }
@@ -159,12 +159,12 @@ func likeMsg(w http.ResponseWriter, r *http.Request){
   _, ok := like[name]
   if(ok) {
     //append msgid
-    set := like[name]
-    set[msgid] = true
+    like[name][msgid] = true
   }else {
     //no like before, add map
     set := make(map[int]bool)
     set[msgid] = true
+    like[name] = set
   }
 
 }
@@ -189,6 +189,14 @@ func unlikeMsg(w http.ResponseWriter, r *http.Request) {
 
   }
 }
+
+// func likeList(w http.ResponseWriter, r *http.Request) {
+//   session, _ := store.Get(r, "user_session")
+//   log.Println(session)
+//   var temp interface{} = "user"
+//   name := session.Values[temp].(string)
+//
+// }
 
 func HomePage(w http.ResponseWriter, r *http.Request){
     t, err := template.ParseFiles("index.html") //parse the html file homepage.html
