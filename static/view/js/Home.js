@@ -3,13 +3,7 @@ var url = "http://localhost:8080";
 var browseStack = []
 var elements = []
 
-var MUSIC_CARD_TYPE = 0;
-var ARTIST_CARD_TYPE = 1;
-var ALBUM_CARD_TYPE = 2;
-var PLAYLIST_CARD_TYPE = 3;
-var USER_CARD_TYPE = 4;
-var NEW_ALBUM_FEED = 5;
-var PLAY_FEED = 6;
+const NORMAL_MSG_TYPE = 0
 
 function playStackTop(){
 	console.trace();
@@ -46,33 +40,9 @@ function createCard(id, row, cardType){
 	var ret = "";
 	var cardClass = "track-card";
 	switch(cardType){
-		case MUSIC_CARD_TYPE:
-			cardClass = "track-card";
-			ret = createMusicCard(id, row);
-			break;
-		case ARTIST_CARD_TYPE:
-			cardClass = "artist-card";
-			ret = createArtistCard(id, row);
-			break;
-		case ALBUM_CARD_TYPE:
-			cardClass = "album-card";
-			ret = createAlbumCard(id, row);
-			break;
-		case PLAYLIST_CARD_TYPE:
-			cardClass = "playlist-card";
-			ret = createPlaylistCard(id, row);
-			break;
-		case USER_CARD_TYPE:
-			cardClass = "artist-card";
-			ret = createUserCard(id, row);
-			break;
-		case NEW_ALBUM_FEED:
-			cardClass = "artist-card";
-			ret = createNewAlbumFeed(id, row);
-			break;
-		case PLAY_FEED:
-			cardClass = "track-card";
-			ret = createPlayFeed(id, row);
+		case NORMAL_MSG_TYPE:
+			cardClass = "normal-msg-card"
+			ret = createMsgCard(id, row);
 			break;
 		default:
 			break;
@@ -86,77 +56,14 @@ function createCard(id, row, cardType){
 	return temp;
 }
 
-function getTimeInterval(seconds){
-	var timeInterval = 0; var unit = "days";
-	if(seconds>(365*24*3600)){
-		timeInterval = seconds/(365*24*3600);
-		unit = "years";
-	}
-	else if(seconds>(30*24*3600)){
-		timeInterval = seconds/(30*24*3600);
-		unit = "months";
-	}
-	else{
-		timeInterval = seconds/(24*3600);
-		unit = "days"
-	}
-	return Math.floor(timeInterval) +" "+ unit;
-}
-
-function createPlayFeed(id, row){
-	var timeInterval = getTimeInterval(parseInt(row.timeinterval));
-	var s = `<i class="fa fa-commenting-o fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.uname} just listen to "${row.tname}" ${timeInterval} ago!</h3>`;
+function createMsgCard(id, row){
+	var s = `<h3 class="card-title">${row.User}</h3>
+					<p class="card-text">${row.Value}</p>
+					`;
 	return s;
 }
 
-function createNewAlbumFeed(id,row){
-	// console.log(row);
-	var timeInterval = getTimeInterval(parseInt(row.timeinterval));
-	var s = `<i class="fa fa-list-alt fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.aname} just release the new album "${row.altitle}" ${timeInterval} ago!</h3>`;
-    return s;
-}
 
-function createPlaylistCard(id, row){
-	var s = `<i class="fa fa-list-alt fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.ptitle}</h3>
-					<p class="card-text">Owned By:${row.uname}</p>
-					<p class="card-text">Release Time:${row.buildtime}</p>`;
-	return s;
-}
-
-function createAlbumCard(id, row){
-	var s = `<i class="fa fa-list-alt fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.altitle}</h3>
-					<p class="card-text">Release Time:${row.Albumtime}</p>`;
-	return s;
-}
-
-function createMusicCard(id,row){
-	// console.log(row);
-	var s = `<i class="fa fa-music fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.tname}</h3>
-					<p class="card-text">By:${row.aname}</p>
-					<p class="card-text">Genre:${row.tgenre}</p>
-					<p class="card-text">Duration:${row.duration} seconds</p>`;
-    return s;
-}
-
-function createArtistCard(id, row){
-	var s = `<i class="fa fa-user-circle fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.aname}</h3>
-					<p class="card-text">Description:${row.adescription}</p>`;
-    return s;
-}
-
-function createUserCard(id, row){
-	var s = `<i class="fa fa-user-o fa-2x" aria-hidden="true"></i>
-					<h3 class="card-title">${row.uname}</h3>
-					<p class="card-text">Name:${row.rname}</p>
-					<p class="card-text">City:${row.ucity}</p>`;
-    return s;
-}
 
 function playAnimation(){
 	// console.log(elements);
@@ -373,15 +280,16 @@ function getFeeds(){
 }
 
 $(window).on('load', function() {
-	document.addEventListener('keyup', (event) => {
-	  		const keyName = event.key;
-	  		if (keyName === 'a') {
-	  			console.log(browseStack);
-  		}
-	}, false);
+	// document.addEventListener('keyup', (event) => {
+	//   		const keyName = event.key;
+	//   		if (keyName === 'a') {
+	//   			console.log(browseStack);
+  // 		}
+	// }, false);
+	getMsgs(-1)
 
 	// $("#Greeting").html("Welcome! "+local_data);
-	playStackTop();
+	// playStackTop();
 });
 
 
@@ -485,6 +393,19 @@ $("#post-msg-btn").click(function(){
 		});
 })
 
-function getMsgs(msgId){
 
+function getMsgs(msgId){
+	console.log("msgId",msgId)
+	$.get( url+"/GetMsg",{index:msgId}).done(function( data ) {
+			console.log(data);
+			var parsedData = JSON.parse(data)
+			createCards(parsedData, NORMAL_MSG_TYPE, null)
+		});
 }
+
+
+$(window).scroll(function() {
+   if($(window).scrollTop() + $(window).height() == $(document).height()) {
+       alert("bottom!");
+   }
+});

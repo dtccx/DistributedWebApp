@@ -6,15 +6,15 @@
     display: compact;
      font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }*/
-html { 
-  background: url(header.jpg) no-repeat center center fixed; 
+html {
+  background: url(header.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
 
-#loginDialog{ 
+#loginDialog{
     position: absolute;
     width: 400px;
     height: 400px;
@@ -65,7 +65,7 @@ html {
     font-size: 23px;
 }
 
-#search-bar{ 
+#search-bar{
     position: absolute;
     width: 500px;
     height: 400px;
@@ -84,7 +84,7 @@ html {
   position: absolute;
 /*    width: 500px;
     height: 400px;*/
-    top: 24%;
+    top: 13%;
     left: 9%;
 }
 
@@ -123,8 +123,14 @@ html {
 
 #back-btn{
     position: absolute;
-    top: 17.9%;
-    left: 29%;
+    top: 8%;
+    left: 48%;
+}
+
+#page-bottom{
+    position: absolute;
+    top: 93%;
+    left: 48%;
 }
 
 #trace{
@@ -133,9 +139,3 @@ html {
     left: 8%;
     color:white;
 }
-
-
-
-
-
-
