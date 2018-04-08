@@ -40,6 +40,11 @@ func main() {
   user = make(map[string]User)
   like = make(map[string]map[int]bool)
 
+  //test likelist function
+  // tempp := make(map[int]bool)
+  // tempp[0] = true
+  // like["a"] = tempp
+
   // http.HandleFunc("/", HomePage)
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
@@ -249,6 +254,7 @@ func likeList(w http.ResponseWriter, r *http.Request) {
   }
   j, _ := json.Marshal(msg_get)
   fmt.Fprintf(w, string(j))
+  log.Println(string(j))
 
 }
 

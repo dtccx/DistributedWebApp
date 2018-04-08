@@ -29,7 +29,10 @@ Other features? If I have omitted something critical, let me know. If there are 
 1. Basic web app: 30%, due date: April 8th
 2. Separating off the back end and making sure it’s multithreaded: 30%, due date: April 22nd
 3. Replicated back end: 30%, due date: May 6th
-4. Product Demo: 10%, due date: May 10 in class.
+
+# Some dramatic bugs in Golang
+1.  In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )
+2.  like.js cannot be recognized by js file. :) rename it!!!
 
 ## Picture explaination for The Web
 1.  Login and sign up Main Page:              

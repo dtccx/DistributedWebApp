@@ -1,5 +1,16 @@
 var url = "http://localhost:8080";
+var elements = []
 var lastMsgId = 0
+const NORMAL_MSG_TYPE = 0
+
+$(window).on('load', function() {
+  console.log("load");
+	getLikeMsgs()
+});
+
+function closeWithRow(s){
+	return "<div class=\"row\" id=\"home-table-row\">" + s + "</div>";
+}
 
 function createCards(rows, cardType, callback){
 	var n = rows.length;
@@ -57,15 +68,8 @@ function createMsgCard(id, row){
 	return s;
 }
 
-
-$("#get-like-btn").click(function(){
-	if(lastMsgId == 0){return}
-  getMsgs(lastMsgId - 1)
-})
-
-function getLikeMsgs(msgId){
-	console.log("msgId",msgId)
-
+function getLikeMsgs(){
+  console.log("getLikeMsgs");
 	$.get( url+"/LikeList",{}).done(function( data ) {
 			console.log(data);
 			var parsedData = JSON.parse(data)
@@ -76,3 +80,27 @@ function getLikeMsgs(msgId){
 			}
 		});
 }
+
+$("#back-btn").click(function(){
+	$("#msg-board").modal("show");
+})
+
+
+function refreshTable(){
+	$("#home-table").html("");
+	getLikeMsgs()
+}
+
+
+$("#post-msg-btn").click(function(){
+	console.log("post-msg-btn", " pressed")
+	$.post( url+"/LikeList",{}).done(function( data ) {
+			console.log(data);
+			if(data=="0"){
+				alert("post msg fail, try again")
+			}else{
+				$("#msg-board").modal("hide");
+				refreshTable()
+			}
+		});
+})
