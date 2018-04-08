@@ -41,18 +41,6 @@ func main() {
 
 
 
-
-func MyHandler(w http.ResponseWriter, r *http.Request){
-  // Get a session. We're ignoring the error resulted from decoding an
-  // existing session: Get() always returns a session, even if empty.
-  session, _ := store.Get(r, "session-name")
-  // Set some session values.
-  session.Values["foo"] = "bar"
-  session.Values[42] = 43
-  // Save it before we write to the response/return from the handler.
-  session.Save(r, w)
-}
-
 func login(w http.ResponseWriter, r *http.Request) {
     //name := r.FormValue("name")
     name := r.FormValue("user")
@@ -62,8 +50,9 @@ func login(w http.ResponseWriter, r *http.Request) {
       log.Println("log success")
       session, _ := store.Get(r, "user_session")
       // Set some session values.
-      session.Values["authenticated"] = true
-      session.Values["user"] = name
+      //session.Values["authenticated"] = true
+      var temp interface{} = "user"
+      session.Values[temp] = name
       // Save it before we write to the response/return from the handler.
       session.Save(r, w)
       log.Print(session)
@@ -101,9 +90,10 @@ func signup(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func delete(w http.ResponseWriter, r *http.Request) {
+func msgdel(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "user_session")
-  name := session.Values["user"]
+  var temp interface{} = "user"
+  name := session.Values[temp].(string)
   _, ok := user[name]
   if(ok) {
     delete(user, name)
@@ -118,27 +108,28 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
     value := r.FormValue("value")
     id := len(msg)
     session, _ := store.Get(r, "user-session")
-    name := session.Values["user"]
+    var temp interface{} = "user"
+    name := session.Values[temp].(string)
     //name := "sb"
     msg = append(msg, Msg{id ,value, name, 0})
     log.Println(msg)
   }
 }
 
-func getMsg() {
-  for(i := len(msg) - 1; i >= 0; i--){
-    msg[i].Value
-  }
-}
+// func getMsg() {
+//   for(i := len(msg) - 1; i >= 0; i--){
+//     msg[i].Value
+//   }
+// }
 
-func like(w http.ResponseWriter, r *http.Request){
-  name := //user Name
-  msgid :=
-  msg[msgid].LikeNum += 1
-
-  //add like map if needed
-
-}
+// func like(w http.ResponseWriter, r *http.Request){
+//   name := //user Name
+//   msgid :=
+//   msg[msgid].LikeNum += 1
+//
+//   //add like map if needed
+//
+// }
 
 func HomePage(w http.ResponseWriter, r *http.Request){
     t, err := template.ParseFiles("index.html") //parse the html file homepage.html
