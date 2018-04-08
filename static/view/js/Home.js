@@ -53,7 +53,7 @@ function createCard(id, row, cardType){
 
 	var temp = `<div class="col-sm-4">
 				<div class="card home-table-card2 ${cardClass}">
-					<div class="card-block home-table-card" id="card-${cardType}-${id}">${ret}</div>
+					<div class="card-block home-table-card" id="card-${cardType}-${row.ID}">${ret}</div>
 				</div>
 			 </div>`;
 	return temp;
@@ -96,7 +96,7 @@ function createCards(rows, cardType, callback){
 		if(i*3+3>n) bound = n;
 		for(j=i*3; j<bound ;j++){
 			rowS+=createCard(j, rows[j], cardType);
-			elements.push('#card-'+cardType+'-'+j);
+			elements.push('#card-'+cardType+'-'+rows[j].ID);
 		}
 		s+=closeWithRow(rowS);
 	}
@@ -107,8 +107,8 @@ function createCards(rows, cardType, callback){
 			var bound = i*3+3;
 			if(i*3+3>n) bound = n;
 			for(let j=i*3; j<bound ;j++){
-				$(document).off('click','#card-'+cardType+'-'+j);
-				$(document).on('click', '#card-'+cardType+'-'+j, {}, function(e){
+				$(document).off('click','#card-'+cardType+'-'+rows[j].ID);
+				$(document).on('click', '#card-'+cardType+'-'+rows[j].ID, {}, function(e){
 					callback(j, rows[j])
 				})
 			}
@@ -117,7 +117,7 @@ function createCards(rows, cardType, callback){
 }
 
 function normalMsgCardCallback(index, row){
-	console.log(row)
+	console.log("normalMsgCardCallback",row)
 	var apicall = "/LikeMsg"
 	if(row.IsLiked) apicall = "/UnlikeMsg"
 	var htmlContent = `<a href="#"><i class="fa fa-heart fa-2x" aria-hidden="true"></i></a>`
