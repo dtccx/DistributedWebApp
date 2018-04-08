@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+
+    <link href="css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+
+  <body>
+    <div class="container" id="back-btn">
+      <a href="#"><i class="fa fa-arrow-circle-left fa-3x" aria-hidden="true"></i></a>
+    </div>
+
+    <div class="modal" id="msg-board" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Type Your Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" id="msg-board-input" rows="3"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="post-msg-btn" class="btn btn-primary">Post</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="home-table">
+    </div>
+
+    <div  class="modal fade" role="dialog" id="PlaySong">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            <div class="embed-responsive embed-responsive-16by9">
+            <iframe	id="CardIink" class="embed-responsive-item" src='' allowfullscreen> </iframe>
+            </div>
+             <table>
+              <tr>
+                  <td>
+                        <a id="CardTname"></a>
+                  </td>
+                  <td>
+                        <a>By</a>
+                  </td>
+                  <td>
+                  <a id="CardAname" href="#"></a>
+                  </td>
+                <td>
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                         Add
+                </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="AddtoPlaylist">
+                        </div>
+                 </td>
+                 <td>
+               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Rating
+                </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="GiveRate">
+                            <a class="dropdown-item" >5</a>
+                            <a class="dropdown-item" >4</a>
+                            <a class="dropdown-item" >3</a>
+                            <a class="dropdown-item" >2</a>
+                            <a class="dropdown-item" >1</a>
+                        </div>
+                </td>
+                <td>
+                <a id="CardScore"></a>
+                </td>
+                </tr>
+            </table>
+          </div>
+     </div>
+
+
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+
+    <!-- Custom scripts for this template -->
+    <script src="js/Home.js"></script>
+
+  </body>
+
+</html>
