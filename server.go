@@ -46,6 +46,8 @@ func main() {
   http.HandleFunc("/GetMsg", getMsg)
   http.HandleFunc("/DelUser", delUser)
   http.HandleFunc("/LikeMsg", likeMsg)
+  http.HandleFunc("/UnlikeMsg", unlikeMsg)
+  http.HandleFunc("/LikeList", likeList)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
