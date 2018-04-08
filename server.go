@@ -6,6 +6,8 @@ import (
   "log"
   "html/template"
   "github.com/gorilla/sessions"
+  "encoding/json"
+  "strconv"
 )
 
 var user map[string]User
@@ -37,7 +39,7 @@ func main() {
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
   http.HandleFunc("/SendMsg", sendMsg)
-  // http.HandleFunc("/GetMsg", getMsg)
+  http.HandleFunc("/GetMsg", getMsg)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -113,14 +115,26 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
     msg = append(msg, Msg{id ,value, name, 0})
     log.Println(msg)
     fmt.Fprintf(w, value)
-
 }
 
-// func getMsg() {
-//   for(i := len(msg) - 1; i >= 0; i--){
-//     msg[i].Value
-//   }
-// }
+
+
+func getMsg(w http.ResponseWriter, r *http.Request) {
+  index_str := r.FormValue("index")
+  index, _ := strconv.Atoi(index_str) //_, error
+  var msg_get []Msg
+  if(index == -1){
+    for i := len(msg) - 1; i >= len(msg) -20 && i >= 0; i-- {
+      msg_get = append(msg_get, msg[i])
+    }
+  }else {
+    for i := index; i >= index - 19 && i >= 0; i-- {
+      msg_get = append(msg_get, msg[i])
+    }
+  }
+  j, _ := json.Marshal(msg_get)
+  fmt.Fprintf(w, string(j))
+}
 
 // func like(w http.ResponseWriter, r *http.Request){
 //   name := //user Name
