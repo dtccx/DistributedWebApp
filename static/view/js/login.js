@@ -8,7 +8,7 @@ $( "#btnReg" ).click(function() {
     	else{
     		console.log("Start replace");
         alert("Sign Up Successfully, you can login now");
-    		window.location.replace(url + "/home.html");
+    		window.location.replace(url + "/index.html");
     		console.log("End replace");
     	}
   	});
@@ -20,7 +20,8 @@ $("#btnLogin").click(function(){
       console.log(data);
       var loginSuccess = data=="true";
   		if(loginSuccess){
-  			window.location.replace(url + "/home.html");
+        //to the home page
+  			window.location.replace(url + "/index.html");
   		}
   		else{
   			alert("Either the Username or the password is incorrect");
