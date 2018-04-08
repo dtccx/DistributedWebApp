@@ -1,28 +1,47 @@
 var url = "http://localhost:8080";
 
-$( "#btnReg" ).click(function() {
-  $.get( url+"/User/Register",{user:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
-      console.log(data);
-    	if(data=="0") alert("User Name is occupied, try another one.");
-    	else{
-    		console.log("Start replace");
-        alert("Sign Up Successfully, you can login now");
-    		window.location.replace(url + "/index.html");
-    		console.log("End replace");
-    	}
-  	});
-});
+function createCard(id, row, cardType){
+	var ret = "";
+	var cardClass = "track-card";
+	switch(cardType){
+		case NORMAL_MSG_TYPE:
+			cardClass = "normal-msg-card"
+			ret = createMsgCard(id, row);
+			break;
+		default:
+			break;
+	}
 
-$("#btnLogin").click(function(){
-	$.get( url+"/User/Login",{user:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
-      console.log(data);
-      var loginSuccess = data=="true";
-  		if(loginSuccess){
-        //to the home page
-  			window.location.replace(url + "/view/home.html");
-  		}
-  		else{
-  			alert("Either the Username or the password is incorrect");
-  		}
-  	});
-});
+	var temp = `<div class="col-sm-4">
+				<div class="card home-table-card2 ${cardClass}">
+					<div class="card-block home-table-card" id="card-${cardType}-${id}">${ret}</div>
+				</div>
+			 </div>`;
+	return temp;
+}
+
+function createMsgCard(id, row){
+	var s = `<h3 class="card-title">${row.User}</h3>
+					<p class="card-text">${row.Value}</p>
+					`;
+	return s;
+}
+
+
+$("#get-like-btn").click(function(){
+	if(lastMsgId==0){return}
+})
+
+function getLikeMsgs(msgId){
+	console.log("msgId",msgId)
+
+	$.get( url+"/LikeList",{}).done(function( data ) {
+			console.log(data);
+			var parsedData = JSON.parse(data)
+			if(parsedData != null && parsedData.length > 0){
+				var tempLikeMsgId = parsedData[parsedData.length-1].ID
+				lastMsgId = tempLikeMsgId
+				createCards(parsedData, NORMAL_MSG_TYPE, null)
+			}
+		});
+}

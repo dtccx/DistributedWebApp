@@ -416,3 +416,9 @@ function getMsgs(msgId){
 			}
 		});
 }
+
+
+
+$("#get-like-url").click(function(){
+		window.location.replace(url + "/view/like.html");
+});

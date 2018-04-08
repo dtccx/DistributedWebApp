@@ -210,7 +210,11 @@ func likeList(w http.ResponseWriter, r *http.Request) {
 
   }
   //json
-  j, _ := json.Marshal(like_list)
+  var msg_get []Msg
+  for _, i := range like_list {
+    msg_get = append(msg_get, msg[i])
+  }
+  j, _ := json.Marshal(msg_get)
   fmt.Fprintf(w, string(j))
 
 }
