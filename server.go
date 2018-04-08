@@ -29,6 +29,7 @@ type Msg struct {
   Value         string
   User          string
   LikeNum       int
+  isLiked       bool
 }
 
 
@@ -122,7 +123,7 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
     var temp interface{} = "user"
     name := session.Values[temp].(string)
     //name := "sb"
-    msg = append(msg, Msg{id ,value, name, 0})
+    msg = append(msg, Msg{id ,value, name, 0, false})
     log.Println(msg)
     fmt.Fprintf(w, value)
 }
@@ -130,6 +131,11 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
 
 
 func getMsg(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "user_session")
+  log.Println(session)
+  var temp interface{} = "user"
+  name := session.Values[temp].(string)
+
   index_str := r.FormValue("index")
   index, _ := strconv.Atoi(index_str) //_, error
   var msg_get []Msg
@@ -137,15 +143,37 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
   //everytime the num of sending
   if(index == -2){
     for i := len(msg) - 1; i >= len(msg) - msgnum && i >= 0; i-- {
-      msg_get = append(msg_get, msg[i])
+      //i is id of the msg
+      temp := msg[i]
+      if(isLike(name, i)){
+        temp.isLiked = true
+      }else {
+        temp.isLiked = false
+      }
+      msg_get = append(msg_get, temp)
     }
   }else {
     for i := index; i >= index - msgnum + 1 && i >= 0; i-- {
-      msg_get = append(msg_get, msg[i])
+      temp := msg[i]
+      if(isLike(name, i)){
+        temp.isLiked = true
+      }else {
+        temp.isLiked = false
+      }
+      msg_get = append(msg_get, temp)
     }
   }
   j, _ := json.Marshal(msg_get)
   fmt.Fprintf(w, string(j))
+}
+
+func isLike(user string, msgid int) bool {
+  _, ok := like[user][msgid]
+  if(ok) {
+    return true
+  }else {
+    return false
+  }
 }
 
 func likeMsg(w http.ResponseWriter, r *http.Request){
