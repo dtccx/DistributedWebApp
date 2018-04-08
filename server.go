@@ -46,6 +46,8 @@ func main() {
   http.HandleFunc("/GetMsg", getMsg)
   http.HandleFunc("/DelUser", delUser)
   http.HandleFunc("/LikeMsg", likeMsg)
+  http.HandleFunc("/UnlikeMsg", unlikeMsg)
+  http.HandleFunc("/LikeList", likeList)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -190,13 +192,28 @@ func unlikeMsg(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-// func likeList(w http.ResponseWriter, r *http.Request) {
-//   session, _ := store.Get(r, "user_session")
-//   log.Println(session)
-//   var temp interface{} = "user"
-//   name := session.Values[temp].(string)
-//
-// }
+func likeList(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "user_session")
+  log.Println(session)
+  var temp interface{} = "user"
+  name := session.Values[temp].(string)
+
+  //send the list of liking msgid to client
+  var like_list []int
+  set, ok := like[name]
+  if(ok) {
+    for k, _ := range set {
+      like_list = append(like_list, k)
+    }
+  }else {
+    //no possilbe
+
+  }
+  //json
+  j, _ := json.Marshal(like_list)
+  fmt.Fprintf(w, string(j))
+
+}
 
 func HomePage(w http.ResponseWriter, r *http.Request){
     t, err := template.ParseFiles("index.html") //parse the html file homepage.html

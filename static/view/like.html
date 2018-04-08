@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+
+    <link href="css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+
+  <body>
+    <div class="container" id="back-btn">
+      <a href="#"><i class="fa fa-paper-plane fa-3x" aria-hidden="true"></i></a>
+    </div>
+
+    <!-- <div class="container" id="delete-account-btn">
+      <button type="button" id="post-user-del" class="btn btn-primary">Delete Account</button>
+    </div> -->
+
+    <ul class="nav ">
+      <li class="nav-item">
+         <a class="nav-link" href="#" id="post-user-del">Delete Account</a>
+      </li>
+    </ul>
+
+
+    <div class="modal" id="msg-board" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Type Your Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" id="msg-board-input" rows="3"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="post-msg-btn" class="btn btn-primary">Post</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="home-table">
+    </div>
+    <div class="container" id="page-bottom">
+      <div class="container" id="get-more-msg-btn">
+        <a href="#"><i class="fa fa-align-justify fa-3x" aria-hidden="true"></i></a>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+
+    <!-- Custom scripts for this template -->
+    <script src="js/Home.js"></script>
+
+  </body>
+
+</html>
