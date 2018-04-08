@@ -5,7 +5,7 @@ import (
   "net/http"
   "log"
   "html/template"
-  "sessions"
+  "github.com/gorilla/sessions"
 )
 
 var user map[string]User
@@ -36,6 +36,8 @@ func main() {
   // http.HandleFunc("/", HomePage)
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
+  http.HandleFunc("/SendMsg", sendMsg)
+  // http.HandleFunc("/GetMsg", getMsg)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -101,10 +103,6 @@ func msgdel(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendMsg(w http.ResponseWriter, r *http.Request) {
-  if r.Method == "GET" {
-    t, _ := template.ParseFiles("index.html")
-    log.Println(t.Execute(w, nil))
-  } else {
     value := r.FormValue("value")
     id := len(msg)
     session, _ := store.Get(r, "user-session")
@@ -113,7 +111,8 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
     //name := "sb"
     msg = append(msg, Msg{id ,value, name, 0})
     log.Println(msg)
-  }
+    fmt.Fprintf(w, "0")
+
 }
 
 // func getMsg() {
