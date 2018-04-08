@@ -1,4 +1,34 @@
 var url = "http://localhost:8080";
+var lastMsgId = 0
+
+function createCards(rows, cardType, callback){
+	var n = rows.length;
+	var s = "";
+	for(i=0; i<n/3; i++){
+		var rowS = "";
+		var bound = i*3+3;
+		if(i*3+3>n) bound = n;
+		for(j=i*3; j<bound ;j++){
+			rowS+=createCard(j, rows[j], cardType);
+			elements.push('#card-'+cardType+'-'+j);
+		}
+		s+=closeWithRow(rowS);
+	}
+	// var preBody = $("#home-table").html();
+	$("#home-table").append(s);
+	if(callback){
+		for(let i=0; i<n/3; i++){
+			var bound = i*3+3;
+			if(i*3+3>n) bound = n;
+			for(let j=i*3; j<bound ;j++){
+				$(document).off('click','#card-'+cardType+'-'+j);
+				$(document).on('click', '#card-'+cardType+'-'+j, {}, function(e){
+					callback(j, rows[j])
+				})
+			}
+		}
+	}
+}
 
 function createCard(id, row, cardType){
 	var ret = "";
@@ -29,7 +59,8 @@ function createMsgCard(id, row){
 
 
 $("#get-like-btn").click(function(){
-	if(lastMsgId==0){return}
+	if(lastMsgId == 0){return}
+  getMsgs(lastMsgId - 1)
 })
 
 function getLikeMsgs(msgId){
