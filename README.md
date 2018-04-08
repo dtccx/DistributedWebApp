@@ -11,10 +11,9 @@
     go run server.go
 
 3.  enter the website:        
+    http://localhost:8080/index.html is the enter of the website.
 
-http://localhost:8080/index.html is the enter of the website.
-
-
+# Idea       
 Time to create a fantastic product that will make you gazillions!!    
 I think no one has ever come up with this idea before, so don't share it as we will be barraged with legal cases later on if you do.    
 People are dying to share every little mindless thing they do throughout their lives, throughout their days, every minute. But given all that sharing, there isn't much time for actually saying much that's meaningful, so we can limit what they will say to a nice small fixed size, say 100 characters.   
@@ -33,5 +32,7 @@ Other features? If I have omitted something critical, let me know. If there are 
 4. Product Demo: 10%, due date: May 10 in class.
 
 ## Picture explaination for The Web
-1.  Login and sign up Main Page:
+1.  Login and sign up Main Page:              
 ![](img/img01.png)
+2.  After Login, the home page will be :
+![](img/img02.png)

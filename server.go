@@ -105,13 +105,14 @@ func msgdel(w http.ResponseWriter, r *http.Request) {
 func sendMsg(w http.ResponseWriter, r *http.Request) {
     value := r.FormValue("value")
     id := len(msg)
-    session, _ := store.Get(r, "user-session")
+    session, _ := store.Get(r, "user_session")
+    log.Println(session)
     var temp interface{} = "user"
     name := session.Values[temp].(string)
     //name := "sb"
     msg = append(msg, Msg{id ,value, name, 0})
     log.Println(msg)
-    fmt.Fprintf(w, "0")
+    fmt.Fprintf(w, value)
 
 }
 

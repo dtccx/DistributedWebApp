@@ -16,7 +16,6 @@ $( "#btnReg" ).click(function() {
 
 $("#btnLogin").click(function(){
 	$.get( url+"/User/Login",{user:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
-      console.log("yaayay");
       console.log(data);
       var loginSuccess = data=="true";
   		if(loginSuccess){
