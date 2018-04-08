@@ -122,9 +122,9 @@ html {
 }
 
 #back-btn{
-    position: absolute;
+    position: fixed;
     top: 8%;
-    left: 48%;
+    left: 3%;
 }
 
 #page-bottom{
@@ -138,6 +138,12 @@ html {
     top: 9%;
     left: 8%;
     color:white;
+}
+
+#refresh-btn{
+  position: fixed;
+  top: 8%;
+  left: 90%;
 }
 
 /* #get-more-msg-btn:hover {background-color: #3e8e41} */

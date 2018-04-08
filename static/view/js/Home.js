@@ -6,6 +6,7 @@ var lastMsgId = 0
 var currentOffset = 0
 
 const NORMAL_MSG_TYPE = 0
+const LASTEST_MSG_FLAG = -2
 
 function playStackTop(){
 	console.trace();
@@ -282,7 +283,7 @@ function getFeeds(){
 }
 
 $(window).on('load', function() {
-	getMsgs(-2)
+	getMsgs(LASTEST_MSG_FLAG)
 });
 
 
@@ -382,6 +383,7 @@ $("#post-msg-btn").click(function(){
 				alert("post msg fail, try again")
 			}else{
 				$("#msg-board").modal("hide");
+				refreshTable()
 			}
 		});
 })
@@ -422,3 +424,14 @@ function getMsgs(msgId){
 $("#get-like-url").click(function(){
 		window.location.replace(url + "/view/like.html");
 });
+
+
+$("#refresh-btn").click(function(){
+	refreshTable()
+})
+
+function refreshTable(){
+	$("#home-table").html("");
+	lastMsgId = 0
+	getMsgs(LASTEST_MSG_FLAG)
+}
