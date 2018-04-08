@@ -10,6 +10,8 @@ import (
   "strconv"
 )
 
+
+var like map[string]map[int]bool
 var user map[string]User
 var msg []Msg
 //list msg
@@ -35,12 +37,15 @@ func main() {
   http.Handle("/", fs)
 
   user = make(map[string]User)
+  like = make(map[string]map[int]bool)
+
   // http.HandleFunc("/", HomePage)
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
   http.HandleFunc("/SendMsg", sendMsg)
   http.HandleFunc("/GetMsg", getMsg)
-  http.HandleFunc("/DelUser",delUser)
+  http.HandleFunc("/DelUser", delUser)
+  http.HandleFunc("/LikeMsg", likeMsg)
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -126,12 +131,14 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
   index_str := r.FormValue("index")
   index, _ := strconv.Atoi(index_str) //_, error
   var msg_get []Msg
+  msgnum := 3
+  //everytime the num of sending
   if(index == -1){
-    for i := len(msg) - 1; i >= len(msg) -20 && i >= 0; i-- {
+    for i := len(msg) - 1; i >= len(msg) - msgnum && i >= 0; i-- {
       msg_get = append(msg_get, msg[i])
     }
   }else {
-    for i := index; i >= index - 19 && i >= 0; i-- {
+    for i := index; i >= index - msgnum + 1 && i >= 0; i-- {
       msg_get = append(msg_get, msg[i])
     }
   }
@@ -139,14 +146,49 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
   fmt.Fprintf(w, string(j))
 }
 
-// func like(w http.ResponseWriter, r *http.Request){
-//   name := //user Name
-//   msgid :=
-//   msg[msgid].LikeNum += 1
-//
-//   //add like map if needed
-//
-// }
+func likeMsg(w http.ResponseWriter, r *http.Request){
+  session, _ := store.Get(r, "user_session")
+  log.Println(session)
+  var temp interface{} = "user"
+  name := session.Values[temp].(string)
+  msgid_str := r.FormValue("msgid")
+  msgid, _ := strconv.Atoi(msgid_str)
+  msg[msgid].LikeNum += 1
+
+  //add like map if needed
+  _, ok := like[name]
+  if(ok) {
+    //append msgid
+    set := like[name]
+    set[msgid] = true
+  }else {
+    //no like before, add map
+    set := make(map[int]bool)
+    set[msgid] = true
+  }
+
+}
+
+func unlikeMsg(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "user_session")
+  log.Println(session)
+  var temp interface{} = "user"
+  name := session.Values[temp].(string)
+  msgid_str := r.FormValue("msgid")
+  msgid, _ := strconv.Atoi(msgid_str)
+  msg[msgid].LikeNum -= 1
+
+  //add like map if needed
+  _, ok := like[name]
+  if(ok) {
+    //append msgid
+    set := like[name]
+    delete(set, msgid)
+  }else {
+    //no like before, it's impossible in unlike
+
+  }
+}
 
 func HomePage(w http.ResponseWriter, r *http.Request){
     t, err := template.ParseFiles("index.html") //parse the html file homepage.html
