@@ -475,18 +475,16 @@ $("#back-btn").click(function(){
 
 $("#post-msg-btn").click(function(){
 	console.log("post-msg-btn", " pressed")
-	$("#btnLogin").click(function(){
-		$.post( url+"/SendMsg",{value:$("#msg-board-input").val()}).done(function( data ) {
-	      console.log(data);
-				if(data=="0"){
-					alert("post msg fail, try again")
-				}else{
-					$("#msg-board").modal("hide");
-				}
-	  	});
-	});
+	$.post( url+"/SendMsg",{value:$("#msg-board-input").val()}).done(function( data ) {
+			console.log(data);
+			if(data=="0"){
+				alert("post msg fail, try again")
+			}else{
+				$("#msg-board").modal("hide");
+			}
+		});
 })
 
 function getMsgs(msgId){
-	
+
 }
