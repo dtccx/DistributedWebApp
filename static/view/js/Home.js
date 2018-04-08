@@ -486,3 +486,7 @@ $("#post-msg-btn").click(function(){
 	  	});
 	});
 })
+
+function getMsgs(msgId){
+	
+}
