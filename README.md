@@ -36,7 +36,7 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 1.  In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )
 2.  like.js cannot be recognized by js file. :) rename it!!!
 
-## Picture explaination for The Web each function:
+## Picture of tests for each function:
 1.  Login and sign up Main Page:              
 ![](img/img01.png)      
 ![](img/img11.png)   
@@ -60,4 +60,4 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 8.  Show the message's like num (how many people liked this message)              
 ![](img/img09.png)      
 9.  Show all message by clicking the bottom button "expand"           
-![](img/img12.png) 
+![](img/img12.png)
