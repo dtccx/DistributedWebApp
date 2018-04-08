@@ -2,6 +2,8 @@ var url = "http://localhost:8080";
 
 var browseStack = []
 var elements = []
+var lastMsgId = 0
+var currentOffset = 0
 
 const NORMAL_MSG_TYPE = 0
 
@@ -86,8 +88,8 @@ function createCards(rows, cardType, callback){
 		}
 		s+=closeWithRow(rowS);
 	}
-	var preBody = $("#home-table").html();
-	$("#home-table").html(preBody+s);
+	// var preBody = $("#home-table").html();
+	$("#home-table").append(s);
 	if(callback){
 		for(let i=0; i<n/3; i++){
 			var bound = i*3+3;
@@ -280,16 +282,7 @@ function getFeeds(){
 }
 
 $(window).on('load', function() {
-	// document.addEventListener('keyup', (event) => {
-	//   		const keyName = event.key;
-	//   		if (keyName === 'a') {
-	//   			console.log(browseStack);
-  // 		}
-	// }, false);
-	getMsgs(-1)
-
-	// $("#Greeting").html("Welcome! "+local_data);
-	// playStackTop();
+	getMsgs(-2)
 });
 
 
@@ -405,19 +398,21 @@ $("#post-user-del").click(function(){
 		});
 })
 
+$("#get-more-msg-btn").click(function(){
+	if(lastMsgId==0){return}
+	getMsgs(lastMsgId-1)
+})
 
 function getMsgs(msgId){
 	console.log("msgId",msgId)
+
 	$.get( url+"/GetMsg",{index:msgId}).done(function( data ) {
 			console.log(data);
 			var parsedData = JSON.parse(data)
-			createCards(parsedData, NORMAL_MSG_TYPE, null)
+			if(parsedData!=null && parsedData.length>0){
+				var tempLastMsgId = parsedData[parsedData.length-1].ID
+				lastMsgId = tempLastMsgId
+				createCards(parsedData, NORMAL_MSG_TYPE, null)
+			}
 		});
 }
-
-
-$(window).scroll(function() {
-   if($(window).scrollTop() + $(window).height() == $(document).height()) {
-       alert("bottom!");
-   }
-});

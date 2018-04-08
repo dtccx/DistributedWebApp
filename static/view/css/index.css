@@ -128,7 +128,7 @@ html {
 }
 
 #page-bottom{
-    position: absolute;
+    position: fixed;
     top: 93%;
     left: 48%;
 }
