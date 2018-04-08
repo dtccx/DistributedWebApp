@@ -11,108 +11,29 @@
   </head>
 
   <body>
-    <div id="myModal" class="modal fade" role="dialog">
-              <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      <div class="modal-header">
-                            <h4 class="modal-title">Personal Information</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                      </div>
-                      <form>
-                        <div class="form-group">
-                             <a class="navbar-brand">Your Name:</a>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="Name" class="form-control"  placeholder="Your Name">
-                        </div>
-                        <div class="form-group">
-                             <a class="navbar-brand">Your Email:</a>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" id="Email" class="form-control" aria-describedby="emailHelp" placeholder="user@email.com">
-                        </div>
-                        <div class="form-group">
-                             <a class="navbar-brand">Your City:</a>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="City" class="form-control" placeholder="Your City">
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="UpdateUserProfile">Done</button>
-                      </form>
-                    </div>
-              </div>
-            </div>
+    <div class="container" id="back-btn">
+      <a href="#"><i class="fa fa-arrow-circle-left fa-3x" aria-hidden="true"></i></a>
+    </div>
 
-
-
-    <div id="user-info" class="modal fade" role="dialog">
-              <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      <div class="modal-header">
-                            <h4 class="modal-title">User Information</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                      </div>
-                      <form>
-                        <div class="form-group">
-                             <a class="navbar-brand" id="uname">User Name:</a>
-                        </div>
-                        <div class="form-group">
-                             <a class="navbar-brand" id="rname">User Real Name:</a>
-                        </div>
-                        <div class="form-group">
-                             <a class="navbar-brand" id="email">User Email:</a>
-                        </div>
-                        <div class="form-group">
-                             <a class="navbar-brand" id="city">User City:</a>
-                        </div>
-                        <a class="btn btn-primary" id="btn-follow">Follow</a>
-                        <a class="btn btn-info" id="btn-playlist">View Her Playlist</a>
-                      </form>
-                    </div>
-              </div>
-            </div>
-
-    <div id="artist-info" class="modal fade" role="dialog">
-              <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      <div class="modal-header">
-                            <h4 class="modal-title">Artist Information</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                      </div>
-                      <form>
-                        <div class="form-group">
-                             <a class="navbar-brand" id="aname">Artist Name:</a>
-                        </div>
-                        <div class="form-group">
-                             <a class="navbar-brand" id="adesc">Artist Introduction:</a>
-                        </div>
-                        <a class="btn btn-primary" id="btn-like">Like</a>
-                        <a class="btn btn-info" id="btn-tracks">View Her Playlist</a>
-                      </form>
-                    </div>
-              </div>
-            </div>
-
-    <div id="custom-playlist" class="modal fade" role="dialog">
-              <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      <div class="modal-header">
-                            <h4 class="modal-title">Create New Playlist</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                      </div>
-                      <form>
-                        <div class="form-group">
-                            <input type="text" id="ptitle" class="form-control"  placeholder="New Playlist Name">
-                        </div>
-                        <a class="btn btn-primary" id="btn-add-playlist">Add</a>
-                      </form>
-                    </div>
-              </div>
-            </div>
+    <div class="modal" id="msg-board" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Type Your Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" id="msg-board-input" rows="3"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="post-msg-btn" class="btn btn-primary">Post</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="container" id="home-table">
     </div>

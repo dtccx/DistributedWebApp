@@ -470,6 +470,19 @@ $("#btn-add-playlist").click(function(){
 })
 
 $("#back-btn").click(function(){
-	if(browseStack.length>0) browseStack.pop();
-	playStackTop();
+	$("#msg-board").modal("show");
+})
+
+$("#post-msg-btn").click(function(){
+	console.log("post-msg-btn", " pressed")
+	$("#btnLogin").click(function(){
+		$.post( url+"/SendMsg",{value:$("#msg-board-input").val()}).done(function( data ) {
+	      console.log(data);
+				if(data=="0"){
+					alert("post msg fail, try again")
+				}else{
+					$("#msg-board").modal("hide");
+				}
+	  	});
+	});
 })
