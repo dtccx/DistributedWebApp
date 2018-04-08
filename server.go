@@ -29,7 +29,7 @@ type Msg struct {
   Value         string
   User          string
   LikeNum       int
-  isLiked       bool
+  IsLiked       bool
 }
 
 
@@ -146,9 +146,9 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
       //i is id of the msg
       temp := msg[i]
       if(isLike(name, i)){
-        temp.isLiked = true
+        temp.IsLiked = true
       }else {
-        temp.isLiked = false
+        temp.IsLiked = false
       }
       msg_get = append(msg_get, temp)
     }
@@ -156,15 +156,20 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
     for i := index; i >= index - msgnum + 1 && i >= 0; i-- {
       temp := msg[i]
       if(isLike(name, i)){
-        temp.isLiked = true
+        temp.IsLiked = true
       }else {
-        temp.isLiked = false
+        temp.IsLiked = false
       }
       msg_get = append(msg_get, temp)
     }
   }
+  log.Println(msg_get)
   j, _ := json.Marshal(msg_get)
   fmt.Fprintf(w, string(j))
+  log.Println(string(j))
+  // var f interface{}
+  // log.Println(json.Unmarshal([]byte(string(j)), &f))
+  // log.Println(f)
 }
 
 func isLike(user string, msgid int) bool {
