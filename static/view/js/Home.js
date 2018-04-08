@@ -59,12 +59,19 @@ function createCard(id, row, cardType){
 	return temp;
 }
 
+function getMsgHtmlId(id){
+	return `${NORMAL_MSG_TYPE}-${id}`
+}
+function getSpecialMsgHtmlId(id){
+	return `${NORMAL_MSG_TYPE}-special-${id}`
+}
+
 function createMsgCard(id, row){
-	var icon = ``
-	if(row.IsLiked){icon = `<div id="${NORMAL_MSG_TYPE}-${row.ID}"><a href="#"><i class="fa fa-heart fa-2x" aria-hidden="true"></i></a></div>`}
+	var icon = `<div id="${getMsgHtmlId(row.ID)}"></div>`
+	if(row.IsLiked){icon = `<div id="${getMsgHtmlId(row.ID)}"><a href="#"><i class="fa fa-heart fa-2x" aria-hidden="true"></i></a></div>`}
 	var s = `<h3 class="card-title">${row.User}</h3>
 					<p class="card-text">${row.Value}</p>
-					<p class="card-text">Likes: ${row.LikeNum}</p>
+					<p class="card-text" id="${getSpecialMsgHtmlId(row.ID)}">Likes: ${row.LikeNum}</p>
 					`;
 	s += icon
 	return s;
@@ -115,13 +122,20 @@ function normalMsgCardCallback(index, row){
 	if(row.IsLiked) apicall = "/UnlikeMsg"
 	var htmlContent = `<a href="#"><i class="fa fa-heart fa-2x" aria-hidden="true"></i></a>`
 	if(row.IsLiked) htmlContent = ""
+	// console.log("special html id: ", $("#"+getSpecialMsgHtmlId(row.ID)).html())
 	$.post(url+apicall,{msgid:row.ID}).done(function(data){
 		console.log("like call success", data)
-		console.log(`${NORMAL_MSG_TYPE}-${row.ID}`)
-		var cardId = `${NORMAL_MSG_TYPE}-${row.ID}`
+		console.log(`${getMsgHtmlId(row.ID)}`)
+		var cardId = `${getMsgHtmlId(row.ID)}`
 		console.log(htmlContent)
 		$("#"+cardId).html(htmlContent)
 		row.IsLiked = !row.IsLiked
+		row.LikeNum--
+		if(row.IsLiked) row.LikeNum+=2
+		// console.log("likeNum", row.LikeNum)
+		$("#"+getSpecialMsgHtmlId(row.ID)).html("Likes: "+row.LikeNum)
+		// if(row.IsLiked) row.LikeNum++
+		// else row.LikeNum--
 	})
 }
 
