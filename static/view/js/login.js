@@ -21,7 +21,7 @@ $("#btnLogin").click(function(){
       var loginSuccess = data=="true";
   		if(loginSuccess){
         //to the home page
-  			window.location.replace(url + "/index.html");
+  			window.location.replace(url + "/view/home.html");
   		}
   		else{
   			alert("Either the Username or the password is incorrect");
