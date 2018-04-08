@@ -139,3 +139,11 @@ html {
     left: 8%;
     color:white;
 }
+
+/* #get-more-msg-btn:hover {background-color: #3e8e41} */
+
+#get-more-msg-btn:active {
+  /* background-color: #3e8e41;
+  box-shadow: 0 5px #666; */
+  transform: translateY(4px);
+}
