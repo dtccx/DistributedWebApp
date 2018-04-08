@@ -60,9 +60,13 @@ function createCard(id, row, cardType){
 }
 
 function createMsgCard(id, row){
+	var icon = ``
+	if(row.IsLiked){icon = `<div id="${NORMAL_MSG_TYPE}-${row.ID}"><a href="#"><i class="fa fa-heart fa-2x" aria-hidden="true"></i></a></div>`}
 	var s = `<h3 class="card-title">${row.User}</h3>
 					<p class="card-text">${row.Value}</p>
+					<p class="card-text">Likes: ${row.LikeNum}</p>
 					`;
+	s += icon
 	return s;
 }
 
@@ -105,6 +109,21 @@ function createCards(rows, cardType, callback){
 	}
 }
 
+function normalMsgCardCallback(index, row){
+	console.log(row)
+	var apicall = "/LikeMsg"
+	if(row.IsLiked) apicall = "/UnlikeMsg"
+	var htmlContent = `<a href="#"><i class="fa fa-heart fa-2x" aria-hidden="true"></i></a>`
+	if(row.IsLiked) htmlContent = ""
+	$.post(url+apicall,{msgid:row.ID}).done(function(data){
+		console.log("like call success", data)
+		console.log(`${NORMAL_MSG_TYPE}-${row.ID}`)
+		var cardId = `${NORMAL_MSG_TYPE}-${row.ID}`
+		console.log(htmlContent)
+		$("#"+cardId).html(htmlContent)
+		row.IsLiked = !row.IsLiked
+	})
+}
 
 function musicCardCallback(index, row){
 	$.get(url+"/Home/card-",{Aid:row.aid,Tid:row.tid}).done(function(data){
@@ -405,16 +424,16 @@ $("#get-more-msg-btn").click(function(){
 	getMsgs(lastMsgId-1)
 })
 
+
 function getMsgs(msgId){
 	console.log("msgId",msgId)
-
 	$.get( url+"/GetMsg",{index:msgId}).done(function( data ) {
 			console.log(data);
 			var parsedData = JSON.parse(data)
 			if(parsedData!=null && parsedData.length>0){
 				var tempLastMsgId = parsedData[parsedData.length-1].ID
 				lastMsgId = tempLastMsgId
-				createCards(parsedData, NORMAL_MSG_TYPE, null)
+				createCards(parsedData, NORMAL_MSG_TYPE, normalMsgCardCallback)
 			}
 		});
 }
