@@ -63,9 +63,8 @@ func login(w http.ResponseWriter, r *http.Request) {
     //name := r.FormValue("name")
     name := r.FormValue("user")
     password := r.FormValue("password")
-    i, ok := user[name]
-    if(ok && i.Password == password){
-      log.Println("log success")
+    ret := _login(name, password)
+    if ret=="true"{
       session, _ := store.Get(r, "user_session")
       // Set some session values.
       //session.Values["authenticated"] = true
@@ -74,12 +73,19 @@ func login(w http.ResponseWriter, r *http.Request) {
       // Save it before we write to the response/return from the handler.
       session.Save(r, w)
       log.Print(session)
-      fmt.Fprintf(w, "true")
-    }else {
-      //log fails
-      log.Println("log fails")
     }
+    fmt.Fprintf(w, ret)
+}
 
+func _login(name string, password string) string{
+  i, ok := user[name]
+  if(ok && i.Password == password){
+    log.Println("log success")
+    return "true"
+  }else {
+    //log fails
+    return "false"
+  }
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
