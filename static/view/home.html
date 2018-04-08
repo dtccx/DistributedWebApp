@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+
+    <link href="css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+
+  <body>
+    <div id="myModal" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                            <h4 class="modal-title">Personal Information</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <form>
+                        <div class="form-group">
+                             <a class="navbar-brand">Your Name:</a>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="Name" class="form-control"  placeholder="Your Name">
+                        </div>
+                        <div class="form-group">
+                             <a class="navbar-brand">Your Email:</a>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="Email" class="form-control" aria-describedby="emailHelp" placeholder="user@email.com">
+                        </div>
+                        <div class="form-group">
+                             <a class="navbar-brand">Your City:</a>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="City" class="form-control" placeholder="Your City">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="UpdateUserProfile">Done</button>
+                      </form>
+                    </div>
+              </div>
+            </div>
+
+
+
+    <div id="user-info" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                            <h4 class="modal-title">User Information</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <form>
+                        <div class="form-group">
+                             <a class="navbar-brand" id="uname">User Name:</a>
+                        </div>
+                        <div class="form-group">
+                             <a class="navbar-brand" id="rname">User Real Name:</a>
+                        </div>
+                        <div class="form-group">
+                             <a class="navbar-brand" id="email">User Email:</a>
+                        </div>
+                        <div class="form-group">
+                             <a class="navbar-brand" id="city">User City:</a>
+                        </div>
+                        <a class="btn btn-primary" id="btn-follow">Follow</a>
+                        <a class="btn btn-info" id="btn-playlist">View Her Playlist</a>
+                      </form>
+                    </div>
+              </div>
+            </div>
+
+    <div id="artist-info" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                            <h4 class="modal-title">Artist Information</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <form>
+                        <div class="form-group">
+                             <a class="navbar-brand" id="aname">Artist Name:</a>
+                        </div>
+                        <div class="form-group">
+                             <a class="navbar-brand" id="adesc">Artist Introduction:</a>
+                        </div>
+                        <a class="btn btn-primary" id="btn-like">Like</a>
+                        <a class="btn btn-info" id="btn-tracks">View Her Playlist</a>
+                      </form>
+                    </div>
+              </div>
+            </div>
+
+    <div id="custom-playlist" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                            <h4 class="modal-title">Create New Playlist</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <form>
+                        <div class="form-group">
+                            <input type="text" id="ptitle" class="form-control"  placeholder="New Playlist Name">
+                        </div>
+                        <a class="btn btn-primary" id="btn-add-playlist">Add</a>
+                      </form>
+                    </div>
+              </div>
+            </div>
+
+    <div class="container" id="home-table">
+    </div>
+
+    <div  class="modal fade" role="dialog" id="PlaySong">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            <div class="embed-responsive embed-responsive-16by9">
+            <iframe	id="CardIink" class="embed-responsive-item" src='' allowfullscreen> </iframe>
+            </div>
+             <table>
+              <tr>
+                  <td>
+                        <a id="CardTname"></a>
+                  </td>
+                  <td>
+                        <a>By</a>
+                  </td>
+                  <td>
+                  <a id="CardAname" href="#"></a>
+                  </td>
+                <td>
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                         Add
+                </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="AddtoPlaylist">
+                        </div>
+                 </td>
+                 <td>
+               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Rating
+                </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="GiveRate">
+                            <a class="dropdown-item" >5</a>
+                            <a class="dropdown-item" >4</a>
+                            <a class="dropdown-item" >3</a>
+                            <a class="dropdown-item" >2</a>
+                            <a class="dropdown-item" >1</a>
+                        </div>
+                </td>
+                <td>
+                <a id="CardScore"></a>
+                </td>
+                </tr>
+            </table>
+          </div>
+     </div>
+
+
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+
+    <!-- Custom scripts for this template -->
+    <script src="js/Home.js"></script>
+
+  </body>
+
+</html>
