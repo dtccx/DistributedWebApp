@@ -393,6 +393,18 @@ $("#post-msg-btn").click(function(){
 		});
 })
 
+$("#post-user-del").click(function(){
+	$.post( url+"/DelUser",{}).done(function( data ) {
+			console.log(data);
+			if(data == "0"){
+				alert("Delete Your Account Successfully")
+				window.location.replace(url + "/index.html");
+			}else{
+
+			}
+		});
+})
+
 
 function getMsgs(msgId){
 	console.log("msgId",msgId)

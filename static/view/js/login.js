@@ -1,7 +1,6 @@
 var url = "http://localhost:8080";
 
 $( "#btnReg" ).click(function() {
-  alert("btnReg")
   $.get( url+"/User/Register",{user:$("#userName").val() ,password:$("#password").val()}).done(function( data ) {
       console.log(data);
     	if(data=="0") alert("User Name is occupied, try another one.");
