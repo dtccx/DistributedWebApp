@@ -80,7 +80,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 func _login(name string, password string) string{
   i, ok := user[name]
   if(ok && i.Password == password){
-    log.Println("log success")
+    //log.Println("log success")
     return "true"
   }else {
     //log fails
