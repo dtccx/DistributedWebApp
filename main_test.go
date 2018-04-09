@@ -9,6 +9,7 @@ import (
   "io/ioutil"
   "net/http"
   "net/url"
+  "encoding/json"
 )
 
 // func TestLogin(t *testing.T){
@@ -44,7 +45,7 @@ func TestLogin(t *testing.T){
   if ret=="false"{
     t.Fatalf("TestLogin2 fail")
   }
-  fmt.Printf("...... TestLogin Passed\n")
+  fmt.Printf("............ TestLogin Passed ********* !!\n")
 }
 
 func TestIsLike(t *testing.T) {
@@ -64,13 +65,13 @@ func TestIsLike(t *testing.T) {
       fmt.Printf("Liked Failed\n")
     }
   }
-  fmt.Printf("...... TestMessageisLiked Passed\n")
+  fmt.Printf("............ TestMessageisLiked Passed ********* !!\n")
 }
 
 
 func TestSendMsgHttp(t *testing.T){
   handler := func(w http.ResponseWriter, r *http.Request) {
-    http.Error(w, "...... SendMsgResponse Passed", http.StatusInternalServerError)
+    http.Error(w, "............ SendMsgResponse Passed ********* !!", http.StatusInternalServerError)
   }
   req, err := http.NewRequest("POST", urlString + "/SendMsg", nil)
   if err != nil {
@@ -84,7 +85,7 @@ func TestSendMsgHttp(t *testing.T){
 
 func TestServer(t *testing.T) {
   ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-      fmt.Fprintln(w, "...... TestGetMessageServer Passed")
+      fmt.Fprintln(w, "............ TestGetMessageServer Passed ********* !!")
   }))
   defer ts.Close()
   res, err := http.Get(ts.URL)
@@ -97,4 +98,85 @@ func TestServer(t *testing.T) {
     log.Fatal(err)
   }
   fmt.Printf("%s", greeting)
+}
+
+func TestGetMsg(t *testing.T){
+
+
+  user = make(map[string]User)
+  user["user"] = User{"user", "password"}
+  data := url.Values{}
+  data.Set("index", "-2")
+  // data.Add("password", "password")
+  msg = []Msg{
+			  {
+          ID  : 0,
+          Value : "I like debuging :)",
+          User  : "usera",
+          LikeNum  : 2,
+          IsLiked : false,
+			  },
+        {
+          ID  : 1,
+          Value : "I literally like debuging :)",
+          User  : "userb",
+          LikeNum  : 3,
+          IsLiked : false,
+			  },
+        {
+          ID  : 2,
+          Value : "I really like debuging :)",
+          User  : "userc",
+          LikeNum  : 3,
+          IsLiked : false,
+			  }}
+
+      var latestmsg = []Msg{
+          {
+            ID  : 2,
+            Value : "I really like debuging :)",
+            User  : "userc",
+            LikeNum  : 3,
+            IsLiked : false,
+          },
+
+              {
+                ID  : 1,
+                Value : "I literally like debuging :)",
+                User  : "userb",
+                LikeNum  : 3,
+                IsLiked : true,
+      			  },
+              {
+                ID  : 0,
+                Value : "I like debuging :)",
+                User  : "usera",
+                LikeNum  : 2,
+                IsLiked : true,
+      			  },
+              }
+  jsonval, _ := json.Marshal(latestmsg)
+
+  r := httptest.NewRequest("GET", urlString+"/GetMsg?"+data.Encode(), nil)
+  w := httptest.NewRecorder()
+  session, _ := store.Get(r, "user_session")
+  // Set some session values.
+  //session.Values["authenticated"] = true
+  var temp interface{} = "user"
+  session.Values[temp] = "usera"
+  // Save it before we write to the response/return from the handler.
+  session.Save(r, w)
+
+  getMsg(w,r)
+
+  resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+  ret := string(body)
+  log.Println(ret)
+  log.Println(string(jsonval))
+  if ret != string(jsonval){
+    t.Fatalf("TestGetMsg fail")
+  }
+  fmt.Printf("............ TestGetMsgJsonResponse Passed ********* !!\n")
 }
