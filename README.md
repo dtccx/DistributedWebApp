@@ -4,14 +4,28 @@
 ## Xinglun Xu
 
 # How to Install the web application
-1.  Install APIs we used:           
+1.  Install APIs we used:   
+```
     go get github.com/gorilla/sessions    
+```           
 
-2.  Run the server:           
-    go run server.go
+
+
+2.  Run the server:
+```
+    go run server.go      
+```
+
 
 3.  enter the website:        
     http://localhost:8080/index.html is the enter of the website.
+
+4.  To run unit test:       
+    We test Login Function, test Message is liked, test response and request in the web application Successfully !!                 
+    use the command:         
+    ```   
+    go test
+    ```
 
 # Idea       
 Time to create a fantastic product that will make you gazillions!!    
@@ -33,7 +47,8 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 
 
 # Some dramatic bugs in Golang
-1.  In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )
+1.  In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )         
+    Also, in Test function, the first one word must be Uppercase too!               
 2.  like.js cannot be recognized by js file. :) rename it!!!
 
 ## Picture of tests for each function:
