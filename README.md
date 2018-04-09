@@ -5,14 +5,17 @@
 
 # How to Install the web application
 1.  Install APIs we used:   
-```        
+```
     go get github.com/gorilla/sessions    
-    ```
+```           
+
+
 
 2.  Run the server:
-```          
-    go run server.go
-    ```
+```
+    go run server.go      
+```
+
 
 3.  enter the website:        
     http://localhost:8080/index.html is the enter of the website.
