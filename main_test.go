@@ -44,6 +44,7 @@ func TestLogin(t *testing.T){
   if ret=="false"{
     t.Fatalf("TestLogin2 fail")
   }
+  fmt.Printf("...... TestLogin Passed\n")
 }
 
 func TestIsLike(t *testing.T) {
