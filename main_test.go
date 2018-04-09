@@ -3,8 +3,31 @@ package main
 import (
   "testing"
   "log"
+  "fmt"
 )
-
+// msg = {
+// 			  {
+//           ID  : 0,
+//           Value : "I like debuging :)",
+//           User  : "usera",
+//           LikeNum  : 2,
+//           IsLiked : false,
+// 			  },
+//         {
+//           ID  : 1,
+//           Value : "I literally like debuging :)",
+//           User  : "userb",
+//           LikeNum  : 3,
+//           IsLiked : false,
+// 			  },
+//         {
+//           ID  : 2,
+//           Value : "I really like debuging :)",
+//           User  : "userc",
+//           LikeNum  : 3,
+//           IsLiked : false,
+// 			  },
+//  			}
 
 func TestLogin(t *testing.T){
   // var user map[string]User
@@ -16,32 +39,10 @@ func TestLogin(t *testing.T){
   if ret != "true"{
     t.Fatalf("TestLogin fail")
   }
+  fmt.Printf("Login Passed\n")
 }
 
 func TestisLike(t *testing.T) {
-  // msg = {
-  // 			  {
-  //           ID  : 0,
-  //           Value : "I like debuging :)",
-  //           User  : "usera",
-  //           LikeNum  : 2,
-  //           IsLiked : false,
-  // 			  },
-  //         {
-  //           ID  : 1,
-  //           Value : "I literally like debuging :)",
-  //           User  : "userb",
-  //           LikeNum  : 3,
-  //           IsLiked : false,
-  // 			  },
-  //         {
-  //           ID  : 2,
-  //           Value : "I really like debuging :)",
-  //           User  : "userc",
-  //           LikeNum  : 3,
-  //           IsLiked : false,
-  // 			  },
-  //  			}
   like = make(map[string]map[int]bool)
   test_case1 := []string{"usera","userb","userb"}
   test_case2 := []int{1,0,1}
@@ -57,4 +58,5 @@ func TestisLike(t *testing.T) {
       t.Fatalf("TestLike fail")
     }
   }
+  fmt.Printf("Liked Passed\n")
 }
