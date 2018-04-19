@@ -1,10 +1,14 @@
 package common
 
-type logArgs struct {
+type LogArgs struct {
 	Name string
   Password string
 }
 
-type logReply struct {
+type LogReply struct {
 	Success bool
+}
+
+type msgArgs struct {
+  Name string
 }
