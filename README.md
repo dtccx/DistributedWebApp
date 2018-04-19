@@ -46,10 +46,14 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 5.  Show 3 msgs each time, and expand each time you click on the "expand" Button.
 
 
-# Some dramatic bugs in Golang
+# Something you might Need to know in Golang Development
 1.  In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )         
     Also, in Test function, the first one word must be Uppercase too!               
 2.  like.js cannot be recognized by js file. :) rename it!!!
+3.  Create HttpTest case. Online's method is not clear. Use ours sample, it's easier.
+4.  When you create a test case:					
+	 a. see in the main file, which package you use					
+	 b. name your test file with name "(#main_package)_test"						
 
 ## Picture of tests for each function:
 1.  Login and sign up Main Page:              
@@ -75,4 +79,5 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 8.  Show the message's like num (how many people liked this message)              
 ![](img/img09.png)      
 9.  Show all message by clicking the bottom button "expand"           
-![](img/img12.png)
+![](img/img12.png)				
+10. The result of Test:
