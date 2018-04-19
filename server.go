@@ -5,14 +5,12 @@ import (
   "net/http"
   "log"
   "html/template"
-  "net"
   "net/rpc"
-  "common"
+  "./src/common"
   "github.com/gorilla/sessions"
   "encoding/json"
   "strconv"
 )
-
 
 type Arith struct {
   client *rpc.Client
@@ -25,6 +23,7 @@ var msg []Msg
 //list msg
 //var msg map[int]Msg
 
+var arith *Arith
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 type User struct {
@@ -55,9 +54,6 @@ func main() {
 
   // http.HandleFunc("/", HomePage)
 
-  arith := new(Arith)
-  rpc.Register(arith)
-  rpc.HandleHTTP()
   // rpc.HandleHTTP("/User/Login", login)
   // rpc.HandleHTTP("/User/Register", signup)
   // rpc.HandleHTTP("/SendMsg", sendMsg)
@@ -77,12 +73,15 @@ func main() {
   http.HandleFunc("/LikeList", likeList)
   log.Fatal(http.ListenAndServe(":8080", nil))
 
-  l, e := net.Listen("tcp", ":8080")
-  if e != nil {
-    log.Fatal("listen error:", e)
-  }
+  // Tries to connect to localhost:1234 using HTTP protocol (The port on which rpc server is listening)
+	client, err := rpc.DialHTTP("tcp", "localhost:8081")
+	if err != nil {
+		log.Fatal("dialing:", err)
+	}
 
-  http.Serve(l, nil)
+	// Create a struct, that mimics all methods provided by interface.
+	// It is not compulsory, we are doing it here, just to simulate a traditional method call.
+	arith = &Arith{client: client}
 }
 
 
@@ -91,8 +90,8 @@ func login(w http.ResponseWriter, r *http.Request) {
     //name := r.FormValue("name")
     name := r.FormValue("user")
     password := r.FormValue("password")
-    ret := _login(name, password)
-    if ret=="true"{
+    ret := arith._login(name, password)
+    if ret == "true" {
       session, _ := store.Get(r, "user_session")
       // Set some session values.
       //session.Values["authenticated"] = true
@@ -105,13 +104,16 @@ func login(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, ret)
 }
 
-func _login(name string, password string) string{
-  i, ok := user[name]
-  if(ok && i.Password == password){
-    //log.Println("log success")
+func(t *Arith) _login(name string, password string) string{
+  args := &common.LogArgs{name, password}
+  var reply *common.LogReply
+  err := t.client.Call("DB.Login", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
+  }
+  if(reply.Success){
     return "true"
   }else {
-    //log fails
     return "false"
   }
 }
