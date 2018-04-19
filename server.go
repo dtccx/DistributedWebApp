@@ -5,10 +5,18 @@ import (
   "net/http"
   "log"
   "html/template"
+  "net"
+  "net/rpc"
+  "common"
   "github.com/gorilla/sessions"
   "encoding/json"
   "strconv"
 )
+
+
+type Arith struct {
+  client *rpc.Client
+}
 
 
 var like map[string]map[int]bool
@@ -46,6 +54,19 @@ func main() {
   // like["a"] = tempp
 
   // http.HandleFunc("/", HomePage)
+
+  arith := new(Arith)
+  rpc.Register(arith)
+  rpc.HandleHTTP()
+  // rpc.HandleHTTP("/User/Login", login)
+  // rpc.HandleHTTP("/User/Register", signup)
+  // rpc.HandleHTTP("/SendMsg", sendMsg)
+  // rpc.HandleHTTP("/GetMsg", getMsg)
+  // rpc.HandleHTTP("/DelUser", delUser)
+  // rpc.HandleHTTP("/LikeMsg", likeMsg)
+  // rpc.HandleHTTP("/UnlikeMsg", unlikeMsg)
+  // rpc.HandleHTTP("/LikeList", likeList)
+
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
   http.HandleFunc("/SendMsg", sendMsg)
@@ -55,6 +76,13 @@ func main() {
   http.HandleFunc("/UnlikeMsg", unlikeMsg)
   http.HandleFunc("/LikeList", likeList)
   log.Fatal(http.ListenAndServe(":8080", nil))
+
+  l, e := net.Listen("tcp", ":8080")
+  if e != nil {
+    log.Fatal("listen error:", e)
+  }
+
+  http.Serve(l, nil)
 }
 
 
