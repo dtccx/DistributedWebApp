@@ -1,10 +1,10 @@
 package common
 
-
-type Args struct {
-	A, B int
+type logArgs struct {
+	Name string
+  Password string
 }
 
-type Quotient struct {
-	Quo, Rem int
+type logReply struct {
+	Success bool
 }
