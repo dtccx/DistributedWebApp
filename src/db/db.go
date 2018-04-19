@@ -1,7 +1,7 @@
 package main
 
 import (
-  "errors"
+  // "errors"
   "log"
   "net/rpc"
   "net"
@@ -9,29 +9,57 @@ import (
   "common"
 )
 
-type Arith int
+type User struct {
+	Name          string
+	Password      string
+}
 
-func (t *Arith) Multiply(args *common.Args, reply *int) error {
-	*reply = args.A * args.B
+type Msg struct {
+  ID            int
+  Value         string
+  User          string
+  LikeNum       int
+  IsLiked       bool
+}
+//
+type DB struct{
+  like map[string]map[int]bool
+  user map[string]User
+  msg []Msg
+}
+
+// func (db *DB) Multiply(args *common.logArgs, reply *int) error {
+// 	*reply = args.A * args.B
+// 	return nil
+// }
+//
+func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
+
 	return nil
 }
 
-func (t *Arith) Divide(args *common.Args, quo *common.Quotient) error {
-	if args.B == 0 {
-		return errors.New("divide by zero")
-	}
-	quo.Quo = args.A / args.B
-	quo.Rem = args.A % args.B
-	return nil
-}
+// func (t *DB) Divide(args *common.Args, quo *common.Quotient) error {
+// 	if args.B == 0 {
+// 		return errors.New("divide by zero")
+// 	}
+// 	quo.Quo = args.A / args.B
+// 	quo.Rem = args.A % args.B
+// 	return nil
+// }
+
 
 func main(){
-  arith := new(Arith)
-  rpc.Register(arith)
+  db := new(DB)
+  // user = make(map[string]User)
+  // like = make(map[string]map[int]bool)
+  db.user = make(map[string]User)
+  db.like = make(map[string]map[int]bool)
+  rpc.Register(db)
   rpc.HandleHTTP()
-  l, e := net.Listen("tcp", ":1234")
+  l, e := net.Listen("tcp", ":8081")
   if e != nil {
   	log.Fatal("listen error:", e)
   }
   http.Serve(l, nil)
+  // log.Println(common.LOGIN)
 }
