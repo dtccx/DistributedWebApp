@@ -15,7 +15,7 @@ import (
 type Arith struct {
   client *rpc.Client
 }
-
+var arith *Arith
 
 var like map[string]map[int]bool
 var user map[string]User
@@ -23,7 +23,6 @@ var msg []Msg
 //list msg
 //var msg map[int]Msg
 
-var arith *Arith
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 type User struct {
@@ -47,21 +46,13 @@ func main() {
   user = make(map[string]User)
   like = make(map[string]map[int]bool)
 
-  //test likelist function
-  // tempp := make(map[int]bool)
-  // tempp[0] = true
-  // like["a"] = tempp
 
-  // http.HandleFunc("/", HomePage)
+  client, err := rpc.DialHTTP("tcp", "localhost:8082")
+  if err != nil {
+    log.Fatal("dialing:", err)
+  }
 
-  // rpc.HandleHTTP("/User/Login", login)
-  // rpc.HandleHTTP("/User/Register", signup)
-  // rpc.HandleHTTP("/SendMsg", sendMsg)
-  // rpc.HandleHTTP("/GetMsg", getMsg)
-  // rpc.HandleHTTP("/DelUser", delUser)
-  // rpc.HandleHTTP("/LikeMsg", likeMsg)
-  // rpc.HandleHTTP("/UnlikeMsg", unlikeMsg)
-  // rpc.HandleHTTP("/LikeList", likeList)
+  arith = &Arith{client: client}
 
   http.HandleFunc("/User/Login", login)
   http.HandleFunc("/User/Register", signup)
@@ -71,17 +62,10 @@ func main() {
   http.HandleFunc("/LikeMsg", likeMsg)
   http.HandleFunc("/UnlikeMsg", unlikeMsg)
   http.HandleFunc("/LikeList", likeList)
-  log.Fatal(http.ListenAndServe(":8080", nil))
-
+  http.ListenAndServe(":8080", nil)
   // Tries to connect to localhost:1234 using HTTP protocol (The port on which rpc server is listening)
-	client, err := rpc.DialHTTP("tcp", "localhost:8081")
-	if err != nil {
-		log.Fatal("dialing:", err)
-	}
 
-	// Create a struct, that mimics all methods provided by interface.
-	// It is not compulsory, we are doing it here, just to simulate a traditional method call.
-	arith = &Arith{client: client}
+
 }
 
 
@@ -90,6 +74,7 @@ func login(w http.ResponseWriter, r *http.Request) {
     //name := r.FormValue("name")
     name := r.FormValue("user")
     password := r.FormValue("password")
+
     ret := arith._login(name, password)
     if ret == "true" {
       session, _ := store.Get(r, "user_session")
@@ -105,9 +90,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func(t *Arith) _login(name string, password string) string{
+
   args := &common.LogArgs{name, password}
-  var reply *common.LogReply
+  var reply common.LogReply
+  log.Println("client", t.client)
   err := t.client.Call("DB.Login", args, &reply)
+  //client.Call("DB.Login", args, &reply)
   if err != nil {
     log.Fatal("arith error:", err)
   }
