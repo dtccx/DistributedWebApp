@@ -34,7 +34,8 @@ type DB struct{
 // }
 //
 func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
-
+  log.Println(args.Password)
+  reply.Success = true
 	return nil
 }
 
@@ -50,8 +51,6 @@ func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
 
 func main(){
   db := new(DB)
-  // user = make(map[string]User)
-  // like = make(map[string]map[int]bool)
   db.user = make(map[string]User)
   db.like = make(map[string]map[int]bool)
   rpc.Register(db)
@@ -61,5 +60,4 @@ func main(){
   	log.Fatal("listen error:", e)
   }
   http.Serve(l, nil)
-  // log.Println(common.LOGIN)
 }
