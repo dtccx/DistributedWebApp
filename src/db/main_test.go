@@ -46,7 +46,7 @@ func Test_ServerSetup(t *testing.T){
 
 
 func Test_Register(t *testing.T){
-  db,client := BuildSuiteWithPort(18082)
+  db,client := BuildSuiteWithPort(18081)
   userName := "lala"
   passWord := "weakPW"
   args := &common.SignArgs{userName,passWord}
@@ -60,4 +60,21 @@ func Test_Register(t *testing.T){
     log.Fatal("Test_Register user info wrong in db:", err)
   }
   log.Println("Test_Register pass!")
+}
+
+
+func Test_Login(t *testing.T){
+  _,client := BuildSuiteWithPort(18082)
+  userName := "lala"
+  passWord := "weakPW"
+  args1 := &common.SignArgs{userName,passWord}
+  var reply1 common.SignReply
+  client.Call("DB.Signup", args1, &reply1)
+
+  args2 := &common.LogArgs{userName}
+  var reply2 common.LogReply
+  err2 := client.Call("DB.Login", args2, &reply2)
+  if(reply2.Password!=passWord){
+    log.Fatal("Test_Login: fail to login", err2)
+  }
 }
