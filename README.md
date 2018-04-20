@@ -56,7 +56,8 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 3.  Create HttpTest case. Online's method is not clear. Use ours sample, it's easier.
 4.  When you create a test case:					
 	 a. see in the main file, which package you use					
-	 b. name your test file with name "(#main_package)_test"						
+	 b. name your test file with name "(main_package)_test"
+5. 	Initialize RPC client "arith := &Arith" before http HandleFunc();
 
 ## Picture of tests for each function:
 1.  Login and sign up Main Page:              
