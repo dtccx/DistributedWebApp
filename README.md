@@ -47,8 +47,11 @@ Users who log in. They will need passwords. They may want to cancel their accoun
 
 
 # Something you might Need to know in Golang Development
-1.  In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )         
-    Also, in Test function, the first one word must be Uppercase too!               
+1.  Because Uppercase will be public, or it will be private! SO:
+    In datasture, the var's first word must be Uppercase; Otherwise Json or other function will not get them. : )         
+    Also, in Test function, the first one word must be Uppercase too!  
+    Also, RPC's datasture first word must be Upper!
+    Also, RPC's function is too.
 2.  like.js cannot be recognized by js file. :) rename it!!!
 3.  Create HttpTest case. Online's method is not clear. Use ours sample, it's easier.
 4.  When you create a test case:					
