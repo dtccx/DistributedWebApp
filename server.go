@@ -137,10 +137,22 @@ func delUser(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "user_session")
   var temp interface{} = "user"
   name := session.Values[temp].(string)
-  _, ok := user[name]
-  if(ok) {
-    delete(user, name)
+  args := &common.DelUserArgs{name}
+  var reply common.DelUserReply
+  err := arith.client.Call("DB.DelUser", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
   }
+
+  if(!reply.Success){
+    //user not exist
+    log.Println("User not exist")
+    fmt.Fprintf(w, "0") //exsit
+  }else {
+    log.Print("delete successfully")
+  }
+
+
   log.Println(user)
   fmt.Fprintf(w, "0")
 }
@@ -180,11 +192,33 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
   log.Println(session)
   var temp interface{} = "user"
   name := session.Values[temp].(string)
-
   index_str := r.FormValue("index")
   index, _ := strconv.Atoi(index_str) //_, error
-  var msg_get []Msg
+  var msg_get []common.Msg
+  var msg []common.Msg
   msgnum := 3
+
+
+  args := &common.GetMsgArgs{name}
+  var reply common.GetMsgReply
+  err := arith.client.Call("DB.GetMsg", args, &reply)
+
+  if err != nil {
+    log.Fatal("arith error:", err)
+  }
+
+  if(!reply.Success){
+    //user exsit
+    log.Println("User already exist")
+    return
+
+  }else {
+    //user[name] = User{name, password}
+    msg = reply.Msg
+  }
+
+
+
   //everytime the num of sending
   if(index == -2){
     for i := len(msg) - 1; i >= len(msg) - msgnum && i >= 0; i-- {
@@ -233,19 +267,25 @@ func likeMsg(w http.ResponseWriter, r *http.Request){
   name := session.Values[temp].(string)
   msgid_str := r.FormValue("msgid")
   msgid, _ := strconv.Atoi(msgid_str)
-  msg[msgid].LikeNum += 1
 
-  //add like map if needed
-  _, ok := like[name]
-  if(ok) {
-    //append msgid
-    like[name][msgid] = true
-  }else {
-    //no like before, add map
-    set := make(map[int]bool)
-    set[msgid] = true
-    like[name] = set
+  args := common.LikeArgs{name, msgid}
+  var reply common.LikeReply
+  err := arith.client.Call("DB.LikeMsg", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
   }
+
+  if(!reply.Success){
+    //user exsit
+    log.Println("like fail")
+    return
+
+  }else {
+    //user[name] = User{name, password}
+    log.Println("like success")
+    return
+  }
+
 
 }
 

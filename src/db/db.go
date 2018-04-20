@@ -14,18 +14,12 @@ type User struct {
 	Password      string
 }
 
-type Msg struct {
-  ID            int
-  Value         string
-  User          string
-  LikeNum       int
-  IsLiked       bool
-}
+
 //
 type DB struct{
   like map[string]map[int]bool
   user map[string]User
-  msg []Msg
+  msg []common.Msg
 }
 
 // func (db *DB) Multiply(args *common.logArgs, reply *int) error {
@@ -59,24 +53,59 @@ func (db *DB) Signup(args *common.SignArgs, reply *common.SignReply) error {
 	return nil
 }
 
+func (db *DB) DelUser(args *common.DelUserArgs, reply *common.DelUserReply) error {
+  name := args.Name
+  _, ok := db.user[name]
+  if(ok) {
+    reply.Success = true
+    delete(db.user, name)
+  }else {
+    reply.Success = false
+  }
+	return nil
+}
+
+
+
 func (db *DB) SendMsg(args *common.SendMsgArgs, reply *common.SendMsgReply) error {
   name := args.Name
   value := args.Value
   id := len(db.msg)
-  db.msg = append(db.msg, Msg{id ,value, name, 0, false})
+  db.msg = append(db.msg, common.Msg{id ,value, name, 0, false})
+  reply.Success = true;
+	return nil
+}
+
+func (db *DB) GetMsg(args *common.GetMsgArgs, reply *common.GetMsgReply) error {
+  //name := args.Name
+  reply.Msg = db.msg
+  reply.Success = true;
+	return nil
+}
+
+func (db *DB) LikeMsg(args *common.LikeArgs, reply *common.LikeReply) error {
+  name := args.Name
+  msgid := args.Msgid
+
+  db.msg[msgid].LikeNum += 1
+  //add like map if needed
+  _, ok := db.like[name]
+  if(ok) {
+    //append msgid
+    db.like[name][msgid] = true
+  }else {
+    //no like before, add map
+    set := make(map[int]bool)
+    set[msgid] = true
+    db.like[name] = set
+  }
+
   reply.Success = true;
 	return nil
 }
 
 
-// func (t *DB) Divide(args *common.Args, quo *common.Quotient) error {
-// 	if args.B == 0 {
-// 		return errors.New("divide by zero")
-// 	}
-// 	quo.Quo = args.A / args.B
-// 	quo.Rem = args.A % args.B
-// 	return nil
-// }
+
 
 
 func main(){
