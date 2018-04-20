@@ -43,11 +43,7 @@ func main() {
   fs := http.FileServer(http.Dir("static"))
   http.Handle("/", fs)
 
-  user = make(map[string]User)
-  like = make(map[string]map[int]bool)
-
-
-  client, err := rpc.DialHTTP("tcp", "localhost:8082")
+  client, err := rpc.DialHTTP("tcp", "localhost:8081")
   if err != nil {
     log.Fatal("dialing:", err)
   }
@@ -67,8 +63,6 @@ func main() {
 
 
 }
-
-
 
 func login(w http.ResponseWriter, r *http.Request) {
     //name := r.FormValue("name")
@@ -91,7 +85,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 func(t *Arith) _login(name string, password string) string{
 
-  args := &common.LogArgs{name, password}
+  args := &common.LogArgs{name}
   var reply common.LogReply
   log.Println("client", t.client)
   err := t.client.Call("DB.Login", args, &reply)
@@ -99,7 +93,7 @@ func(t *Arith) _login(name string, password string) string{
   if err != nil {
     log.Fatal("arith error:", err)
   }
-  if(reply.Success){
+  if(reply.Success && reply.Password == password){
     return "true"
   }else {
     return "false"
@@ -115,14 +109,21 @@ func signup(w http.ResponseWriter, r *http.Request) {
     password := r.FormValue("password")
     log.Print(name)
     log.Print(password)
-    _, ok := user[name]
-    if(ok){
+    args := &common.SignArgs{name, password}
+    var reply common.SignReply
+    err := arith.client.Call("DB.Signup", args, &reply)
+    //client.Call("DB.Login", args, &reply)
+    if err != nil {
+      log.Fatal("arith error:", err)
+    }
+
+    if(!reply.Success){
       //user exsit
       log.Println("User already exist")
       fmt.Fprintf(w, "0") //exsit
 
     }else {
-      user[name] = User{name, password}
+      //user[name] = User{name, password}
       log.Print("map:", user)
     }
 

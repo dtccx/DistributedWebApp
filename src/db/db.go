@@ -34,10 +34,31 @@ type DB struct{
 // }
 //
 func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
-  log.Println(args.Password)
-  reply.Success = true
+  name := args.Name
+  i, ok := db.user[name]
+  if(ok){
+    reply.Password = i.Password
+    reply.Success = true
+  }else{
+    reply.Success = false
+  }
 	return nil
 }
+
+func (db *DB) Signup(args *common.SignArgs, reply *common.SignReply) error {
+  log.Println(args.Password)
+  name := args.Name
+  password := args.Password
+  _, ok := db.user[name]
+  if(ok){
+    reply.Success = false
+  }else{
+    db.user[name] = User{name, password}
+  }
+	return nil
+}
+
+
 
 // func (t *DB) Divide(args *common.Args, quo *common.Quotient) error {
 // 	if args.B == 0 {
