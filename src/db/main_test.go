@@ -86,6 +86,7 @@ func Test_Login(t *testing.T){
   if(reply2.Password!=passWord){
     log.Fatal("Test_Login: fail to login", err2)
   }
+  log.Println("Test_Login pass!")
 }
 
 
@@ -110,12 +111,20 @@ func Test_DelUser(t *testing.T){
   if(reply3.Success==true){
     log.Fatal("Test_DelUser: deleted user still able to login")
   }
+  log.Println("Test_DelUser pass!")
 }
 
 func (test_db *Test_DB) sendMsgFromUser(uname string, value string){
   args := &common.SendMsgArgs{uname,value}
   var reply common.SendMsgReply
   test_db.client.Call("DB.SendMsg", args, &reply)
+}
+
+func (test_db *Test_DB) getMsg() []common.Msg{
+  args := &common.GetMsgArgs{}
+  var reply common.GetMsgReply
+  test_db.client.Call("DB.GetMsg", args, &reply)
+  return reply.Msg
 }
 
 func Test_SendMsg(t *testing.T){
@@ -127,4 +136,39 @@ func Test_SendMsg(t *testing.T){
   if len(db.msg)<1 {
     log.Fatal("Test_SendMsg: fail to insert message")
   }
+  log.Println("Test_SendMsg pass!")
+}
+
+func Test_GetMsg(t *testing.T){
+  _,client := BuildSuiteWithPort(18085)
+  test_db := Test_DB{client}
+  test_db.signUpUser("u1", "p1")
+  test_db.sendMsgFromUser("u1", "v1")
+  msgs := test_db.getMsg()
+  if len(msgs)<1{
+    log.Fatal("Test_GetMsg: db empty after insertion")
+  }
+  if(msgs[0].Value!="v1"){
+    log.Fatal("Test_GetMsg: new inserted msg has wrong value")
+  }
+  log.Println("Test_GetMsg pass!")
+}
+
+func (test_db *Test_DB) likeMsg(uname string, msgid int){
+  args := &common.LikeArgs{uname, msgid}
+  var reply common.LikeReply
+  test_db.client.Call("DB.LikeMsg", args, &reply)
+}
+
+func Test_LikeMsg(t *testing.T){
+  db,client := BuildSuiteWithPort(18086)
+  test_db := Test_DB{client}
+  test_db.signUpUser("u1", "p1")
+  test_db.signUpUser("u2", "p1")
+  test_db.sendMsgFromUser("u1", "value1")
+  test_db.likeMsg("u2", 0)
+  if db.like["u2"][0]!=true{
+    log.Fatal("Test_LikeMsg: fail to like msg")
+  }
+  log.Println("Test_LikeMsg pass!")
 }
