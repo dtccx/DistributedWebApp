@@ -18,6 +18,11 @@ type SignReply struct {
   Success bool
 }
 
-type msgArgs struct {
+type SendMsgArgs struct {
   Name string
+	Value string
+}
+
+type SendMsgReply struct {
+  Success bool
 }

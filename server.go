@@ -147,14 +147,29 @@ func delUser(w http.ResponseWriter, r *http.Request) {
 
 func sendMsg(w http.ResponseWriter, r *http.Request) {
     value := r.FormValue("value")
-    id := len(msg)
+    //id := len(msg)
     session, _ := store.Get(r, "user_session")
     log.Println(session)
     var temp interface{} = "user"
     name := session.Values[temp].(string)
-    //name := "sb"
-    msg = append(msg, Msg{id ,value, name, 0, false})
-    log.Println(msg)
+    args := &common.SendMsgArgs{name, value}
+    var reply common.SendMsgReply
+    err := arith.client.Call("DB.SendMsg", args, &reply)
+
+    if err != nil {
+      log.Fatal("arith error:", err)
+    }
+
+    if(!reply.Success){
+      //user exsit
+      log.Println("User already exist")
+      fmt.Fprintf(w, "0") //exsit
+
+    }else {
+      //user[name] = User{name, password}
+      log.Print("map:", user)
+    }
+
     fmt.Fprintf(w, value)
 }
 

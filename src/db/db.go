@@ -53,11 +53,20 @@ func (db *DB) Signup(args *common.SignArgs, reply *common.SignReply) error {
   if(ok){
     reply.Success = false
   }else{
+    reply.Success = true
     db.user[name] = User{name, password}
   }
 	return nil
 }
 
+func (db *DB) SendMsg(args *common.SendMsgArgs, reply *common.SendMsgReply) error {
+  name := args.Name
+  value := args.Value
+  id := len(db.msg)
+  db.msg = append(db.msg, Msg{id ,value, name, 0, false})
+  reply.Success = true;
+	return nil
+}
 
 
 // func (t *DB) Divide(args *common.Args, quo *common.Quotient) error {
