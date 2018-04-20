@@ -17,26 +17,8 @@ type Arith struct {
 }
 var arith *Arith
 
-var like map[string]map[int]bool
-var user map[string]User
-var msg []Msg
-//list msg
-//var msg map[int]Msg
 
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
-
-type User struct {
-	Name          string
-	Password      string
-}
-
-type Msg struct {
-  ID            int
-  Value         string
-  User          string
-  LikeNum       int
-  IsLiked       bool
-}
 
 
 func main() {
@@ -124,7 +106,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 
     }else {
       //user[name] = User{name, password}
-      log.Print("map:", user)
+      log.Print("signup success")
     }
 
   } else {
@@ -152,8 +134,6 @@ func delUser(w http.ResponseWriter, r *http.Request) {
     log.Print("delete successfully")
   }
 
-
-  log.Println(user)
   fmt.Fprintf(w, "0")
 }
 
@@ -174,12 +154,12 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
 
     if(!reply.Success){
       //user exsit
-      log.Println("User already exist")
+      log.Println("send fail")
       fmt.Fprintf(w, "0") //exsit
 
     }else {
       //user[name] = User{name, password}
-      log.Print("map:", user)
+      log.Print("send success")
     }
 
     fmt.Fprintf(w, value)
@@ -252,12 +232,19 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
 }
 
 func isLike(user string, msgid int) bool {
-  _, ok := like[user][msgid]
-  if(ok) {
+  args := &common.IsLikeArgs{user, msgid}
+  var reply common.IsLikeReply
+  err := arith.client.Call("DB.IsLike", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
+  }
+
+  if(reply.Success){
     return true
   }else {
     return false
   }
+
 }
 
 func likeMsg(w http.ResponseWriter, r *http.Request){
@@ -268,7 +255,7 @@ func likeMsg(w http.ResponseWriter, r *http.Request){
   msgid_str := r.FormValue("msgid")
   msgid, _ := strconv.Atoi(msgid_str)
 
-  args := common.LikeArgs{name, msgid}
+  args := &common.LikeArgs{name, msgid}
   var reply common.LikeReply
   err := arith.client.Call("DB.LikeMsg", args, &reply)
   if err != nil {
@@ -294,20 +281,28 @@ func unlikeMsg(w http.ResponseWriter, r *http.Request) {
   log.Println(session)
   var temp interface{} = "user"
   name := session.Values[temp].(string)
+
   msgid_str := r.FormValue("msgid")
   msgid, _ := strconv.Atoi(msgid_str)
-  msg[msgid].LikeNum -= 1
 
-  //add like map if needed
-  _, ok := like[name]
-  if(ok) {
-    //append msgid
-    set := like[name]
-    delete(set, msgid)
-  }else {
-    //no like before, it's impossible in unlike
-
+  args := &common.UnLikeArgs{name, msgid}
+  var reply common.UnLikeReply
+  err := arith.client.Call("DB.UnLikeMsg", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
   }
+
+  if(!reply.Success){
+    //user exsit
+    log.Println("unlike fail")
+    return
+
+  }else {
+    //user[name] = User{name, password}
+    log.Println("unlike success")
+    return
+  }
+
 }
 
 func likeList(w http.ResponseWriter, r *http.Request) {
@@ -316,21 +311,32 @@ func likeList(w http.ResponseWriter, r *http.Request) {
   var temp interface{} = "user"
   name := session.Values[temp].(string)
 
-  //send the list of liking msgid to client
-  var like_list []int
-  set, ok := like[name]
-  if(ok) {
-    for k, _ := range set {
-      like_list = append(like_list, k)
-    }
-  }else {
-    //no possilbe
+  args := &common.LikeListArgs{name}
+  var reply common.LikeListReply
+  err := arith.client.Call("DB.LikeList", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
+  }
+
+  if(!reply.Success){
+    //user exsit
+    log.Println("likelist fail")
+    return
 
   }
+
+  //send the list of liking msgid to client
+  var like_list []int
+  set := reply.Lklist
+
+  for k, _ := range set {
+    like_list = append(like_list, k)
+  }
+
   //json
-  var msg_get []Msg
+  var msg_get []common.Msg
   for _, i := range like_list {
-    msg_get = append(msg_get, msg[i])
+    msg_get = append(msg_get, reply.Msg[i])
   }
   j, _ := json.Marshal(msg_get)
   fmt.Fprintf(w, string(j))

@@ -59,3 +59,29 @@ type LikeArgs struct {
 type LikeReply struct {
 	Success bool
 }
+
+type UnLikeArgs struct {
+	Name		string
+	Msgid		int
+}
+type UnLikeReply struct {
+	Success bool
+}
+
+type LikeListArgs struct {
+	Name		string
+}
+type LikeListReply struct {
+	Lklist	map[int]bool
+	Msg			[]Msg
+	Success bool
+}
+
+type IsLikeArgs struct {
+	Name 		string
+	Msgid		int
+}
+
+type IsLikeReply struct {
+	Success bool
+}

@@ -104,8 +104,56 @@ func (db *DB) LikeMsg(args *common.LikeArgs, reply *common.LikeReply) error {
 	return nil
 }
 
+func (db *DB) UnLikeMsg(args *common.UnLikeArgs, reply *common.UnLikeReply) error {
+  name := args.Name
+  msgid := args.Msgid
+
+  db.msg[msgid].LikeNum -= 1
+
+  //add like map if needed
+  _, ok := db.like[name]
+  if(ok) {
+    //append msgid
+    //test bug
+    set := db.like[name]
+    delete(set, msgid)
+    reply.Success = true
+  }else {
+    //no like before, it's impossible in unlike
+    reply.Success = false
+  }
+	return nil
+}
 
 
+func (db *DB) LikeList(args *common.LikeListArgs, reply *common.LikeListReply) error {
+  name := args.Name
+  //add like map if needed
+  _, ok := db.like[name]
+  if(ok) {
+    //append msgid
+    //test bug
+    reply.Lklist = db.like[name]
+    reply.Msg = db.msg
+    reply.Success = true
+  }else {
+    //no like before, it's impossible in unlike
+    reply.Success = false
+  }
+	return nil
+}
+
+func (db *DB) IsLike(args *common.IsLikeArgs, reply *common.IsLikeReply) error {
+  name := args.Name
+  msgid := args.Msgid
+  _, ok := db.like[name][msgid]
+  if(ok) {
+    reply.Success = true
+  }else {
+    reply.Success = false
+  }
+  return nil
+}
 
 
 func main(){
