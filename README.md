@@ -1,8 +1,15 @@
-# DistributedWebApp
+# DistributedWebApp(v 2.0)
 # Group members
 ## Changxing Cao
 ## Xinglun Xu
 
+# Explanation of Each files
+***src/common*** is the data structure we use and communicate from server-front to server-end.   
+      if you know RPC, this is go RPC. And store some certain Database Key-Value Map. Because RPC cannot use the datastructure in database file - db.go, so we put some into common.go
+***src/db***  is the back-end of the server, you can simply treat it as Database
+***server.go*** is the client of the server.
+***test file*** includes 1.main_test.go and 2.src/db/main_test.go  
+      separately to test 1.Main FUNC and RPC communication; 2.test DB logic
 # How to Install the web application
 1.  Install APIs we used:   
 ```
@@ -10,22 +17,27 @@
 ```           
 
 
-
-2.  Run the server:
+2.  Run the server-frontend:
 ```
     go run server.go      
 ```
 
+3.  Run the server-backend(Database):
+```
+    go run src/db/db.go
+```
 
-3.  enter the website:        
+4.  enter the website:        
     http://localhost:8080/index.html is the enter of the website.
 
-4.  To run unit test:       
+5.  To run unit test:(Add more tests in version2)       
     We test Login Function, test Message is liked, test response and request in the web application Successfully !!                 
     use the command:         
     ```   
     go test
     ```
+
+
 
 # Idea       
 Time to create a fantastic product that will make you gazillions!!    
