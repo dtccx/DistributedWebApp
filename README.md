@@ -9,7 +9,7 @@
 ***src/db***  is the back-end of the server, you can simply treat it as Database
 ***server.go*** is the client of the server.
 ***test file*** includes 1.main_test.go and 2.src/db/main_test.go  
-      separately to test 1.Main FUNC and RPC communication; 2.test DB logic
+      separately to test 1.Main FUNC ; 2.test DB logic and RPC communication
 # How to Install the web application
 1.  Install APIs we used:   
 ```

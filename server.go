@@ -10,6 +10,7 @@ import (
   "github.com/gorilla/sessions"
   "encoding/json"
   "strconv"
+  "sync"
 )
 
 type Arith struct {
@@ -66,20 +67,30 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func(t *Arith) _login(name string, password string) string{
+    var mu sync.Mutex
+    mu.Lock()
+    var err error
+    args := &common.LogArgs{name}
+    var reply common.LogReply
+    log.Println("client", t.client)
+    go func() {
+      err = t.client.Call("DB.Login", args, &reply)
+      mu.Unlock()
+      //client.Call("DB.Login", args, &reply)
+    }()
+    mu.Lock()
+    if err != nil {
+      log.Fatal("arith error:", err)
+    }
+    if(reply.Success && reply.Password == password){
+      log.Println(reply.Password)
+      mu.Unlock()
+      return "true"
+      }else {
+        mu.Unlock()
+        return "false"
+      }
 
-  args := &common.LogArgs{name}
-  var reply common.LogReply
-  log.Println("client", t.client)
-  err := t.client.Call("DB.Login", args, &reply)
-  //client.Call("DB.Login", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
-  }
-  if(reply.Success && reply.Password == password){
-    return "true"
-  }else {
-    return "false"
-  }
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +102,8 @@ func signup(w http.ResponseWriter, r *http.Request) {
     password := r.FormValue("password")
     log.Print(name)
     log.Print(password)
+
+    go func() {
     args := &common.SignArgs{name, password}
     var reply common.SignReply
     err := arith.client.Call("DB.Signup", args, &reply)
@@ -108,6 +121,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
       //user[name] = User{name, password}
       log.Print("signup success")
     }
+  }()
 
   } else {
     t, _ := template.ParseFiles("index.html")
