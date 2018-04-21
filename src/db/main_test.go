@@ -8,7 +8,22 @@ import (
   "log"
   "common"
   "strconv"
+  "fmt"
 )
+
+func _assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
+  if a == b {
+    return
+	}
+	if len(message) == 0 {
+		message = fmt.Sprintf("%v != %v", a, b)
+	}
+	t.Fatal(message)
+}
+
+func assertEqual(t *testing.T, a interface{}, b interface{}) {
+  _assertEqual(t,a,b,"")
+}
 
 type Test_DB struct{
   client *rpc.Client
@@ -171,4 +186,83 @@ func Test_LikeMsg(t *testing.T){
     log.Fatal("Test_LikeMsg: fail to like msg")
   }
   log.Println("Test_LikeMsg pass!")
+}
+
+func (test_db *Test_DB) isLike(uname string, msgid int) bool{
+  args := &common.IsLikeArgs{uname, msgid}
+  var reply common.IsLikeReply
+  test_db.client.Call("DB.IsLike", args, &reply)
+  return reply.Success
+}
+
+func Test_IsLike(t *testing.T){
+  _,client := BuildSuiteWithPort(18087)
+  test_db := Test_DB{client}
+  test_db.signUpUser("u1", "p1")
+  test_db.signUpUser("u2", "p1")
+  test_db.sendMsgFromUser("u1", "value1")
+  test_db.likeMsg("u2", 0)
+  b := test_db.isLike("u2", 0)
+  if(b==false){
+    log.Fatal("Test_IsLike: isLike fail")
+  }
+  log.Println("Test_IsLike pass!")
+}
+
+func Test_IsLike2(t *testing.T){
+  _,client := BuildSuiteWithPort(18088)
+  test_db := Test_DB{client}
+  test_db.signUpUser("u1", "p1")
+  test_db.signUpUser("u2", "p1")
+  test_db.sendMsgFromUser("u1", "value1")
+  b := test_db.isLike("u2", 0)
+  if(b==true){
+    log.Fatal("Test_IsLike: isLike fail")
+  }
+  log.Println("Test_IsLike pass!")
+}
+
+
+func (test_db *Test_DB) unlikeMsg(uname string, msgid int) {
+  args := &common.UnLikeArgs{uname, msgid}
+  var reply common.UnLikeReply
+  test_db.client.Call("DB.UnLikeMsg", args, &reply)
+}
+
+func Test_UnLikeMsg(t *testing.T){
+  _,client := BuildSuiteWithPort(18089)
+  test_db := Test_DB{client}
+  test_db.signUpUser("u1", "p1")
+  test_db.signUpUser("u2", "p1")
+  test_db.sendMsgFromUser("u1", "value1")
+  test_db.likeMsg("u2", 0)
+  test_db.unlikeMsg("u2", 0)
+  b := test_db.isLike("u2", 0)
+  if(b==true){
+    log.Fatal("Test_IsLike: unlike fail")
+  }
+  log.Println("Test_UnLikeMsg pass!")
+}
+
+func (test_db *Test_DB) likeList(uname string) (map[int]bool, []common.Msg) {
+  args := &common.LikeListArgs{uname}
+  var reply common.LikeListReply
+  test_db.client.Call("DB.LikeList", args, &reply)
+  return reply.Lklist, reply.Msg
+}
+
+func Test_LikeList(t *testing.T){
+  _,client := BuildSuiteWithPort(18090)
+  test_db := Test_DB{client}
+  test_db.signUpUser("u1", "p1")
+  test_db.sendMsgFromUser("u1", "value1")
+  test_db.sendMsgFromUser("u1", "value2")
+  test_db.likeMsg("u1", 0)
+  test_db.likeMsg("u1", 1)
+  lkList, msgs := test_db.likeList("u1")
+  assertEqual(t, len(lkList),2)
+  assertEqual(t, len(msgs),2)
+  assertEqual(t, true, lkList[0])
+  assertEqual(t, true, lkList[1])
+  log.Println("Test_LikeList pass!")
 }
