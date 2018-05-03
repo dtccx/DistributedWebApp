@@ -470,8 +470,9 @@ function refreshTable(){
 }
 
 $("#user-follow-search-bar-btn").click(function(){
-	console.log("follow btn press")
-	$.post( url+"/FollowUser",{}).done(function( data ) {
+	var user = $("#user-follow-search-bar-val").val()
+	console.log("send user", user)
+	$.post( url+"/FollowUser",{user:user}).done(function( data ) {
 			console.log(data)
 	});
 })
