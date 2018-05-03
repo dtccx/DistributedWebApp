@@ -468,3 +468,11 @@ function refreshTable(){
 	lastMsgId = 0
 	getMsgs(LASTEST_MSG_FLAG)
 }
+
+$("#user-follow-search-bar-btn").click(function(){
+	var user = $("#user-follow-search-bar-val").val()
+	console.log("send user", user)
+	$.post( url+"/FollowUser",{user:user}).done(function( data ) {
+			console.log(data)
+	});
+})
