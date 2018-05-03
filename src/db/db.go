@@ -20,13 +20,24 @@ type DB struct{
   like map[string]map[int]bool
   user map[string]User
   msg []common.Msg
+  follow map[string]map[string]bool
 }
 
-// func (db *DB) Multiply(args *common.logArgs, reply *int) error {
-// 	*reply = args.A * args.B
-// 	return nil
-// }
-//
+func (db *DB) FollowUser(args *common.LogArgs, reply *common.LogReply) error {
+  user := args.User
+  follow := args.Follow
+  _, ok := db.follow[user]
+  if(ok) {
+    db.follow[user][follow] = true
+  }else {
+    set := make(map[string]bool)
+    set[follow] = true
+    db.follow[user] = set
+  }
+  reply.Success = true
+  return nil
+}
+
 func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
   name := args.Name
   i, ok := db.user[name]
@@ -64,8 +75,6 @@ func (db *DB) DelUser(args *common.DelUserArgs, reply *common.DelUserReply) erro
   }
 	return nil
 }
-
-
 
 func (db *DB) SendMsg(args *common.SendMsgArgs, reply *common.SendMsgReply) error {
   name := args.Name
@@ -160,6 +169,7 @@ func main(){
   db := new(DB)
   db.user = make(map[string]User)
   db.like = make(map[string]map[int]bool)
+  db.follow = make(map[string]map[string]bool)
   rpc.Register(db)
   rpc.HandleHTTP()
   l, e := net.Listen("tcp", ":8081")

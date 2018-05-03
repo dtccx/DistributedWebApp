@@ -41,11 +41,39 @@ func main() {
   http.HandleFunc("/LikeMsg", likeMsg)
   http.HandleFunc("/UnlikeMsg", unlikeMsg)
   http.HandleFunc("/LikeList", likeList)
+  http.HandleFunc("/FollowUser", followUser)
   http.ListenAndServe(":8080", nil)
   // Tries to connect to localhost:1234 using HTTP protocol (The port on which rpc server is listening)
 
 
 }
+
+许兴伦, [May 3, 2018, 4:21:50 PM]:
+func followUser(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "user_session")
+  var temp interface{} = "user"
+  user := session.Values[temp].(string)
+  follow := r.FormValue("user")
+  arg := &common.FollowUserArgs{user, follow}
+  var reply common.FollowUserReply
+  err := arith.client.Call("DB.FollowUser", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
+  }
+
+  if(!reply.Success){
+    //user exsit
+    log.Println("User already exist")
+    fmt.Fprintf(w, "0") //exsit
+
+  }else {
+    //user[name] = User{name, password}
+    log.Print("signup success")
+  }
+}
+
+
+我传你username
 
 func login(w http.ResponseWriter, r *http.Request) {
     //name := r.FormValue("name")
@@ -100,8 +128,6 @@ func signup(w http.ResponseWriter, r *http.Request) {
     fmt.Println(r.Form)
     name := r.FormValue("user")
     password := r.FormValue("password")
-    log.Print(name)
-    log.Print(password)
 
     go func() {
     args := &common.SignArgs{name, password}
