@@ -74,7 +74,7 @@ func (db *DB) FollowList(args *common.FollowListArgs, reply *common.FollowListRe
     for _, a_msg := range db.msg {
       _, ok = db.follow[name][a_msg.User]
       if(ok) {
-        reply.Msg = append(reply.Msg, a_msg.Value)
+        reply.Msg = append(reply.Msg, a_msg)
       }
     }
   }else {

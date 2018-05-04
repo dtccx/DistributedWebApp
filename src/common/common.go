@@ -100,5 +100,5 @@ type FollowListArgs struct {
 }
 
 type FollowListReply struct {
-  Msg     []string
+  Msg     []Msg
 }
