@@ -94,3 +94,11 @@ type FollowUserReply struct {
   IsFound     bool
   IsFollowed  bool
 }
+
+type FollowListArgs struct {
+  Name    string
+}
+
+type FollowListReply struct {
+  Msg     []string
+}

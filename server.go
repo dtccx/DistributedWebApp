@@ -42,10 +42,30 @@ func main() {
   http.HandleFunc("/UnlikeMsg", unlikeMsg)
   http.HandleFunc("/LikeList", likeList)
   http.HandleFunc("/FollowUser", followUser)
+  http.HandleFunc("/FollowList", followList)
   http.ListenAndServe(":8080", nil)
   // log.Print("here")
   // Tries to connect to localhost:1234 using HTTP protocol (The port on which rpc server is listening)
 }
+
+func followList(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "user_session")
+  var temp interface{} = "user"
+  name := session.Values[temp].(string)
+
+  args := &common.FollowListArgs{name}
+  var reply common.FollowListReply
+  err := arith.client.Call("DB.FollowList", args, &reply)
+  if err != nil {
+    log.Fatal("arith error:", err)
+  }
+
+  j, _ := json.Marshal(reply.Msg)
+  fmt.Fprintf(w, string(j))
+  log.Println(string(j))
+
+}
+
 
 func followUser(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "user_session")
@@ -67,6 +87,7 @@ func followUser(w http.ResponseWriter, r *http.Request) {
       //do unfollow
       fmt.Fprintf(w, "10")
     }else {
+      //follow
       fmt.Fprintf(w, "11")
     }
 
