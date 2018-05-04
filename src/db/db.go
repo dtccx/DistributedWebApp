@@ -23,18 +23,47 @@ type DB struct{
   follow map[string]map[string]bool
 }
 
-func (db *DB) FollowUser(args *common.LogArgs, reply *common.LogReply) error {
+func (db *DB) FollowUser(args *common.FollowUserArgs, reply *common.FollowUserReply) error {
   user := args.User
   follow := args.Follow
-  _, ok := db.follow[user]
+
+  _, ok := db.user[follow]
   if(ok) {
-    db.follow[user][follow] = true
+    reply.IsFound = true
+
+    //then followUser
+    _, ok := db.follow[user]
+    if(ok) {
+      //add the follow function
+      _, ok := db.follow[user][follow]
+      if(ok) {
+        //already followU
+        reply.IsFollowed = true
+        //do unfollow
+        delete(db.follow[user], follow)
+      }else {
+        //unfollow (action:follow)
+        reply.IsFollowed = false
+        //do follow
+        set := make(map[string]bool)
+        set[follow] = true
+        db.follow[user] = set
+      }
+
+    }else {
+      //unfollow (action:follow)
+      reply.IsFollowed = false
+      //do follow
+      set := make(map[string]bool)
+      set[follow] = true
+      db.follow[user] = set
+    }
+
+
   }else {
-    set := make(map[string]bool)
-    set[follow] = true
-    db.follow[user] = set
+    reply.IsFound = false
   }
-  reply.Success = true
+
   return nil
 }
 

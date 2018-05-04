@@ -87,9 +87,10 @@ type IsLikeReply struct {
 }
 
 type FollowUserArgs struct {
-  User string
-  Follow string
+  User    string
+  Follow  string
 }
 type FollowUserReply struct {
-  Success bool
+  IsFound     bool
+  IsFollowed  bool
 }
