@@ -473,6 +473,12 @@ $("#user-follow-search-bar-btn").click(function(){
 	var user = $("#user-follow-search-bar-val").val()
 	console.log("send user", user)
 	$.post( url+"/FollowUser",{user:user}).done(function( data ) {
-			console.log(data)
+			if(data === "00"){
+				alert("User not exist")
+			}else if(data === "10"){
+				alert("Successfully unfollow user")
+			}else if(data === "11"){
+				alert("Successfully follow user")
+			}
 	});
 })
