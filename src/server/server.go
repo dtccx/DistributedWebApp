@@ -25,7 +25,7 @@ var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 
 func main() {
-  fs := http.FileServer(http.Dir("static"))
+  fs := http.FileServer(http.Dir("../../static"))
   http.Handle("/", fs)
 
   client, err := rpc.Dial("tcp", "localhost:8081")
