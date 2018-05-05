@@ -266,3 +266,43 @@ func Test_LikeList(t *testing.T){
   assertEqual(t, true, lkList[1])
   log.Println("Test_LikeList pass!")
 }
+
+func createServer(i int, clients []*rpc.Client, ports []string) {
+	peer := Make(clients, i, 0)
+	server := rpc.NewServer()
+	server.Register(peer)
+	l,listenError := net.Listen("tcp", ports[i])
+	if(listenError!=nil){
+		log.Println(listenError)
+	}
+	go server.Accept(l)
+
+	client, err := rpc.Dial("tcp", "localhost" + ports[i])
+	clients[i] = client
+	if(err!=nil){
+		log.Println(err)
+	}
+	// log.Println(client==nil)
+
+}
+
+
+func Test_VrCodeSetup(t *testing.T){
+  clients := make([]*rpc.Client, 3)
+  srv_num := 3
+  ports := []string{":8082",":8083",":8084"}
+
+  for i := 0; i < srv_num; i++ {
+  		createServer(i, clients, ports)
+  }
+
+  argu := &GetServerNumberArgs{}
+	reply := &GetServerNumberReply{}
+	clients[0].Call("PBServer.GetServerNumber", argu, reply)
+  assertEqual(t, reply.Number, 0)
+  clients[1].Call("PBServer.GetServerNumber", argu, reply)
+  assertEqual(t, reply.Number, 1)
+  clients[2].Call("PBServer.GetServerNumber", argu, reply)
+  assertEqual(t, reply.Number, 2)
+
+}

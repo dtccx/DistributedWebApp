@@ -3,9 +3,9 @@ package main
 import (
   // "errors"
   "log"
-  "net/rpc"
-  "net"
-  "net/http"
+  // "net/rpc"
+  // "net"
+  // "net/http"
   "common"
 )
 
@@ -64,22 +64,6 @@ func (db *DB) FollowUser(args *common.FollowUserArgs, reply *common.FollowUserRe
     reply.IsFound = false
   }
 
-  return nil
-}
-
-func (db *DB) FollowList(args *common.FollowListArgs, reply *common.FollowListReply) error {
-  name := args.Name
-  _, ok := db.follow[name]
-  if(ok) {
-    for _, a_msg := range db.msg {
-      _, ok = db.follow[name][a_msg.User]
-      if(ok) {
-        reply.Msg = append(reply.Msg, a_msg)
-      }
-    }
-  }else {
-    //do nothing
-  }
   return nil
 }
 
@@ -210,29 +194,19 @@ func (db *DB) IsLike(args *common.IsLikeArgs, reply *common.IsLikeReply) error {
 }
 
 
-type vrCode struct {
-  db *DB
-  ipaddress string
-}
-
-func (vc *vrCode) run(args *common.VrArgs, reply *common.VrReply) error {
-  switch(args.op){
-
-  }
-  vc.db.
-}
-
-
-func main(){
-  db := new(DB)
-  
-  vc = vrCode(db,"000,000,,")
-
-  rpc.Register(vc)
-  rpc.HandleHTTP()
-  l, e := net.Listen("tcp", ":8081")
-  if e != nil {
-  	log.Fatal("listen error:", e)
-  }
-  http.Serve(l, nil)
-}
+// func main(){
+//   db := new(DB)
+//   db.user = make(map[string]User)
+//   db.like = make(map[string]map[int]bool)
+//   db.follow = make(map[string]map[string]bool)
+//
+//
+//   rpc.Register(db)
+//   rpc.HandleHTTP()
+//
+//   l, e := net.Listen("tcp", ":8081")
+//   if e != nil {
+//   	log.Fatal("listen error:", e)
+//   }
+//   http.Serve(l, nil)
+// }

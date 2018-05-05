@@ -493,32 +493,6 @@ func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServer
 }
 
 
-func createServer(i int, clients []*rpc.Client, ports []string) {
-	peer := Make(clients, i, 0)
-	server := rpc.NewServer()
-	server.Register(peer)
-	l,listenError := net.Listen("tcp", ports[i])
-	if(listenError!=nil){
-		log.Println(listenError)
-	}
-	go server.Accept(l)
-
-	client, err := rpc.Dial("tcp", "localhost" + ports[i])
-	clients[i] = client
-	if(err!=nil){
-		log.Println(err)
-	}
-	log.Println(client==nil)
-
-
-	argu := &GetServerNumberArgs{}
-	reply := &GetServerNumberReply{}
-	client.Call("PBServer.GetServerNumber", argu, reply)
-	log.Println(reply.Number)
-
-
-}
-
 func main(){
 	clients := make([]*rpc.Client, 3)
 	// srv_num := 3
