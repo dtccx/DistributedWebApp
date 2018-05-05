@@ -492,43 +492,22 @@ func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServer
 }
 
 
-func main(){
-	// db := new(DB)
-	clients := make([]*rpc.Client, 2)
-
-	peer := Make(clients, 0, 0)
+func createServer(i int, clients []*rpc.Client, ports []string) {
+	peer := Make(clients, i, 0)
 	server := rpc.NewServer()
 	server.Register(peer)
-	l,listenError := net.Listen("tcp", ":8081")
+	l,listenError := net.Listen("tcp", ports[i])
 	if(listenError!=nil){
 		log.Println(listenError)
 	}
 	go server.Accept(l)
 
-	peer2 := Make(clients, 1, 0)
-	server2 := rpc.NewServer()
-	server2.Register(peer2)
-	l2,listenError2 := net.Listen("tcp", ":8082")
-	if(listenError2!=nil){
-		log.Println(listenError2)
-	}
-	go server2.Accept(l2)
-
-
-	client, err := rpc.Dial("tcp", "localhost:8081")
-	clients[0] = client
+	client, err := rpc.Dial("tcp", "localhost" + ports[i])
+	clients[i] = client
 	if(err!=nil){
 		log.Println(err)
 	}
 	log.Println(client==nil)
-
-
-	client2, err2 := rpc.Dial("tcp", "localhost:8082")
-	clients[1] = client
-	if(err2!=nil){
-		log.Println(err2)
-	}
-	log.Println(client2==nil)
 
 
 	argu := &GetServerNumberArgs{}
@@ -537,8 +516,46 @@ func main(){
 	log.Println(reply.Number)
 
 
-	argu2 := &GetServerNumberArgs{}
-	reply2 := &GetServerNumberReply{}
-	client2.Call("PBServer.GetServerNumber", argu2, reply2)
-	log.Println(reply2.Number)
+}
+
+func main(){
+	// db := new(DB)
+	clients := make([]*rpc.Client, 3)
+	// srv_num := 3
+	// ports := []string{":8082",":8083",":8084"}
+
+
+	//test used for
+	// for i := 0; i < srv_num; i++ {
+	// 	//go func(i int) {
+	// 		//log.Print("gofunction")
+	// 		createServer(i, clients, ports)
+	// 	// }()
+	// }
+
+	peer := Make(clients, 0, 0)
+	server := rpc.NewServer()
+	server.Register(peer)
+	l,listenError := net.Listen("tcp", ":8082")
+	if(listenError!=nil){
+		log.Println(listenError)
+	}
+	server.Accept(l)
+
+	client, err := rpc.Dial("tcp", "localhost:8082")
+	clients[0] = client
+	if(err!=nil){
+		log.Println(err)
+	}
+	log.Println(client==nil)
+
+
+
+	//
+	//
+	//
+	// argu2 := &GetServerNumberArgs{}
+	// reply2 := &GetServerNumberReply{}
+	// client2.Call("PBServer.GetServerNumber", argu2, reply2)
+	// log.Println(reply2.Number)
 }
