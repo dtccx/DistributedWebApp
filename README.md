@@ -88,6 +88,13 @@ And finally, in the third stage, to improve reliability, we will replicate the s
 	 b. name your test file with name "(main_package)_test"
 5. 	Initialize RPC client "arith := &Arith" before http HandleFunc();   
 6.  Notice to transfer the datastructure between client-server to vrcode, strong type data structure is not allowed in Golang.
+7.  When you can not call class or function in the same package:    
+    ```
+    go run src/db/db.go src/db/vrcode.go -port=:8082 -num=0
+    ```
+8.  In part2, we use RPC to communicate, but we use differenct types;  
+    In part3, commmand should use same RPC to communciate, so we need to revise a lot.  
+    For better, You can do RPC in Part2 with the same RPC, DON't USE STRONG TYPE.
 
 
 ## Picture of tests for each function:

@@ -12,6 +12,7 @@ import (
   "net/rpc"
 	"net"
 	"flag"
+	"common"
 	// "net/http"
 )
 
@@ -34,6 +35,7 @@ type PBServer struct {
 	log         []interface{} // the log of "commands"
 	commitIndex int           // all log entries <= commitIndex are considered to have been committed.
 
+	db					*DB
 }
 
 // Prepare defines the arguments for the Prepare RPC
@@ -158,7 +160,7 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 // *if it's eventually committed*. The second return value is the current
 // view. The third return value is true if this server believes it is
 // the primary.
-func (srv *PBServer) Start(command interface{}) (
+func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) (
 	index int, view int, ok bool) {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -174,11 +176,24 @@ func (srv *PBServer) Start(command interface{}) (
 		return -1, srv.currentView, false
 	}
 
+	command := args
 	// Your code here
 	//append the command in its log
 	srv.log = append(srv.log, command)
+	srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
 
-	go srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
+	//write -----> use
+	op := args.Op
+	switch op{
+	case "login":
+		//var temp *common.LogArgs
+		temp,_ := args.Argu.(common.LogArgs)
+		var reply *common.LogReply
+		srv.db.Login(temp, reply)
+
+	}
+
+
 
 	//log.Println(ok)
 //	log.Println(srv.IsCommitted(index))
