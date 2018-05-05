@@ -11,7 +11,7 @@ import (
 	"log"
   "net/rpc"
 	"net"
-	"net/http"
+	// "net/http"
 )
 
 // the 3 possible server status
@@ -477,21 +477,68 @@ func (srv *PBServer) StartView(args *StartViewArgs, reply *StartViewReply) error
 	return nil
 }
 
+type GetServerNumberArgs struct{
+
+}
+
+type GetServerNumberReply struct{
+	Number int
+}
+
+func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServerNumberReply) error{
+	reply.Number = srv.me
+	// log.Println("haha",srv.me)
+	return nil
+}
+
 
 func main(){
-    // db := new(DB)
-		client, _ := rpc.DialHTTP("tcp", "localhost:8081")
-		clients := make([]*rpc.Client, 1)
-		clients[0] = client
-		peer := Make(clients, 0, 0)
+	// db := new(DB)
+	clients := make([]*rpc.Client, 2)
 
-		server := rpc.NewServer()
-		server.RegisterName("PBServer", peer)
+	peer := Make(clients, 0, 0)
+	server := rpc.NewServer()
+	server.Register(peer)
+	l,listenError := net.Listen("tcp", ":8081")
+	if(listenError!=nil){
+		log.Println(listenError)
+	}
+	go server.Accept(l)
 
-    l, e := net.Listen("tcp", ":8081")
-    if e != nil {
-    	log.Fatal("listen error:", e)
-    }
-    http.Serve(l, nil)
-    // log.Println("hw")
+	peer2 := Make(clients, 1, 0)
+	server2 := rpc.NewServer()
+	server2.Register(peer2)
+	l2,listenError2 := net.Listen("tcp", ":8082")
+	if(listenError2!=nil){
+		log.Println(listenError2)
+	}
+	go server2.Accept(l2)
+
+
+	client, err := rpc.Dial("tcp", "localhost:8081")
+	clients[0] = client
+	if(err!=nil){
+		log.Println(err)
+	}
+	log.Println(client==nil)
+
+
+	client2, err2 := rpc.Dial("tcp", "localhost:8082")
+	clients[1] = client
+	if(err2!=nil){
+		log.Println(err2)
+	}
+	log.Println(client2==nil)
+
+
+	argu := &GetServerNumberArgs{}
+	reply := &GetServerNumberReply{}
+	client.Call("PBServer.GetServerNumber", argu, reply)
+	log.Println(reply.Number)
+
+
+	argu2 := &GetServerNumberArgs{}
+	reply2 := &GetServerNumberReply{}
+	client2.Call("PBServer.GetServerNumber", argu2, reply2)
+	log.Println(reply2.Number)
 }
