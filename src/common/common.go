@@ -102,3 +102,12 @@ type FollowListArgs struct {
 type FollowListReply struct {
   Msg     []Msg
 }
+
+type VrArgu struct{
+  Op  string
+  Argu  interface{}
+}
+
+type VrReply struct{
+  Reply interface{}
+}
