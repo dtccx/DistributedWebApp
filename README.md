@@ -27,10 +27,25 @@
     go run src/db/db.go
 ```
 
-4.  enter the website:        
+4.  Run the replicate server: (PBServer)
+
+    We run three replication in this case:
+
+    Please notice to enter parameter:
+    -num=/0~3/
+    -port=/:8082~any/
+```
+    eg.
+    go run src/db/vrcode.go -num=0 -port=:8082
+    go run src/db/vrcode.go -num=1 -port=:8083
+    go run src/db/vrcode.go -num=2 -port=:8084
+
+```
+
+5.  enter the website:        
     http://localhost:8080/index.html is the enter of the website.
 
-5.  To run unit test:(Add more tests in version2)       
+6.  To run unit test:(Add more tests in version2)       
     We test Login Function, test Message is liked, test response and request in the web application Successfully !!                 
     use the command:         
     ```   

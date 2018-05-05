@@ -11,6 +11,7 @@ import (
 	"log"
   "net/rpc"
 	"net"
+	"flag"
 	// "net/http"
 )
 
@@ -519,7 +520,6 @@ func createServer(i int, clients []*rpc.Client, ports []string) {
 }
 
 func main(){
-	// db := new(DB)
 	clients := make([]*rpc.Client, 3)
 	// srv_num := 3
 	// ports := []string{":8082",":8083",":8084"}
@@ -533,29 +533,32 @@ func main(){
 	// 	// }()
 	// }
 
-	peer := Make(clients, 0, 0)
+
+	port := flag.String("port", ":8080", "http listen port")
+	num := flag.Int("num", 777, "client's number")
+	flag.Parse()
+
+	if(*port == ":8080" || *num == 777) {
+		log.Print("! error: Please enter the parameter of port & num(client)")
+		return
+	}
+	log.Print("port", *port)
+
+	peer := Make(clients, *num, 0)
 	server := rpc.NewServer()
 	server.Register(peer)
-	l,listenError := net.Listen("tcp", ":8082")
+	l,listenError := net.Listen("tcp", *port)
 	if(listenError!=nil){
 		log.Println(listenError)
 	}
 	server.Accept(l)
 
-	client, err := rpc.Dial("tcp", "localhost:8082")
-	clients[0] = client
+	client, err := rpc.Dial("tcp", *port)
+	clients[*num] = client
 	if(err!=nil){
 		log.Println(err)
 	}
 	log.Println(client==nil)
 
 
-
-	//
-	//
-	//
-	// argu2 := &GetServerNumberArgs{}
-	// reply2 := &GetServerNumberReply{}
-	// client2.Call("PBServer.GetServerNumber", argu2, reply2)
-	// log.Println(reply2.Number)
 }
