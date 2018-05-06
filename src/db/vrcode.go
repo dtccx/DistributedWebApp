@@ -4,12 +4,12 @@ import (
 	"sync"
 	"log"
   "net/rpc"
-	"net"
-	"flag"
+	// "net"
+	// "flag"
 	"common"
 	"encoding/gob"
-	"os"
-	"os/signal"
+	// "os"
+	// "os/signal"
 	"errors"
 	// "net/http"
 )
@@ -479,65 +479,65 @@ func (srv *PBServer) StartView(args *StartViewArgs, reply *StartViewReply) error
 	return nil
 }
 
-type GetServerNumberArgs struct{
-
-}
-
-type GetServerNumberReply struct{
-	Number int
-}
-
-func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServerNumberReply) error{
-	reply.Number = srv.me
-	// log.Println("haha",srv.me)
-	return nil
-}
-
-
-func main(){
-	clients := make([]*rpc.Client, 1)
-	// srv_num := 3
-	// ports := []string{":8082",":8083",":8084"}
-
-
-
-
-
-	port := flag.String("port", ":8080", "http listen port")
-	num := flag.Int("num", 777, "client's number")
-	flag.Parse()
-
-	if(*port == ":8080" || *num == 777) {
-		log.Print("! error: Please enter the parameter of port & num(client)")
-		return
-	}
-	log.Print("port", *port)
-
-	peer := Make(clients, *num, 0)
-	server := rpc.NewServer()
-	server.Register(peer)
-	l,listenError := net.Listen("tcp", *port)
-	if(listenError!=nil){
-		log.Println(listenError)
-	}
-	go server.Accept(l)
-
-	client, err := rpc.Dial("tcp", *port)
-	clients[*num] = client
-	if(err!=nil){
-		log.Println(err)
-	}
-	log.Println(client==nil)
-
-	signalChan := make(chan os.Signal, 1)
-	cleanupDone := make(chan bool)
-	signal.Notify(signalChan, os.Interrupt)
-	go func() {
-    for _ = range signalChan {
-        log.Println("\nReceived an interrupt, stopping services...\n")
-        cleanupDone <- true
-    }
-	}()
-	<-cleanupDone
-
-}
+// type GetServerNumberArgs struct{
+//
+// }
+//
+// type GetServerNumberReply struct{
+// 	Number int
+// }
+//
+// func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServerNumberReply) error{
+// 	reply.Number = srv.me
+// 	// log.Println("haha",srv.me)
+// 	return nil
+// }
+//
+//
+// func main(){
+// 	clients := make([]*rpc.Client, 1)
+// 	// srv_num := 3
+// 	// ports := []string{":8082",":8083",":8084"}
+//
+//
+//
+//
+//
+// 	port := flag.String("port", ":8080", "http listen port")
+// 	num := flag.Int("num", 777, "client's number")
+// 	flag.Parse()
+//
+// 	if(*port == ":8080" || *num == 777) {
+// 		log.Print("! error: Please enter the parameter of port & num(client)")
+// 		return
+// 	}
+// 	log.Print("port", *port)
+//
+// 	peer := Make(clients, *num, 0)
+// 	server := rpc.NewServer()
+// 	server.Register(peer)
+// 	l,listenError := net.Listen("tcp", *port)
+// 	if(listenError!=nil){
+// 		log.Println(listenError)
+// 	}
+// 	go server.Accept(l)
+//
+// 	client, err := rpc.Dial("tcp", *port)
+// 	clients[*num] = client
+// 	if(err!=nil){
+// 		log.Println(err)
+// 	}
+// 	log.Println(client==nil)
+//
+// 	signalChan := make(chan os.Signal, 1)
+// 	cleanupDone := make(chan bool)
+// 	signal.Notify(signalChan, os.Interrupt)
+// 	go func() {
+//     for _ = range signalChan {
+//         log.Println("\nReceived an interrupt, stopping services...\n")
+//         cleanupDone <- true
+//     }
+// 	}()
+// 	<-cleanupDone
+//
+// }
