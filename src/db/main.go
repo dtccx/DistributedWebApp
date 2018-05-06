@@ -11,7 +11,7 @@ import(
 func main(){
   clients := make([]*rpc.Client, 1)
 
-  peer := Make(clients, 1, 0)
+  peer := Make(clients, 0, 0)
   server := rpc.NewServer()
   server.Register(peer)
   l,listenError := net.Listen("tcp", ":8081")
