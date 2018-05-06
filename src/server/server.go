@@ -29,7 +29,7 @@ func main() {
   // gob.RegisterName(common.SignArgs{})
   // gob.RegisterName("SignArgs",common.SignArgs{})
   // gob.Register(common.SignReply{})
-  fs := http.FileServer(http.Dir("../../static"))
+  fs := http.FileServer(http.Dir("static"))
   http.Handle("/", fs)
 
   client, err := rpc.Dial("tcp", "localhost:8081")
