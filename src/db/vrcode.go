@@ -1,11 +1,5 @@
 package main
 
-//
-// This is a outline of primary-backup replication based on a simplifed version of Viewstamp replication.
-//
-//
-//
-
 import (
 	"sync"
 	"log"
@@ -86,14 +80,11 @@ type StartViewArgs struct {
 type StartViewReply struct {
 }
 
-// GetPrimary is an auxilary function that returns the server index of the
-// primary server given the view number (and the total number of replica servers)
+
 func GetPrimary(view int, nservers int) int {
 	return view % nservers
 }
 
-// IsCommitted is called by tester to check whether an index position
-// has been considered committed by this server
 func (srv *PBServer) IsCommitted(index int) (committed bool) {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -103,8 +94,6 @@ func (srv *PBServer) IsCommitted(index int) (committed bool) {
 	return false
 }
 
-// ViewStatus is called by tester to find out the current view of this server
-// and whether this view has a status of NORMAL.
 func (srv *PBServer) ViewStatus() (currentView int, statusIsNormal bool) {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -145,9 +134,7 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
-	//log.Printf("status", ok)
-	//log.Printf("[%d]status", srv.status)
-	//log.Printf("GetPrimary[%d]  me[%d]", GetPrimary(srv.currentView, len(srv.peers)), srv.me)
+
 	// do not process command if status is not NORMAL
 	// and if i am not the primary in the current view
 	// if srv.status != NORMAL {
@@ -157,7 +144,6 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	// }
 
 	command := args
-	// Your code here
 	//append the command in its log
 	srv.log = append(srv.log, command)
 	srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
@@ -184,11 +170,6 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 }
 
 func (srv *PBServer) resendPrepare(command interface{}, index int, currentView int, commitIndex int) {
-	//send Prepare RPCs to other servers to instruct them
-	//to replicate the command in the same index in their log
-
-	//??how to send to other severs and what is other servers???
-	//send prepare and get reply
 	replys := make([]*PrepareReply, len(srv.peers))
 	for i, _ := range srv.peers {
 		if i == srv.me {
@@ -240,21 +221,6 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 
 }
 
-// exmple code to send an AppendEntries RPC to a server.
-// server is the index of the target server in srv.peers[].
-// expects RPC arguments in args.
-// The RPC library fills in *reply with RPC reply, so caller should pass &reply.
-// the types of the args and reply passed to Call() must be
-// the same as the types of the arguments declared in the
-// handler function (including whether they are pointers).
-//
-// The labrpc package simulates a lossy network, in which servers
-// may be unreachable, and in which requests and replies may be lost.
-// Call() sends a request and waits for a reply. If a reply arrives
-// within a timeout interval, Call() returns true; otherwise
-// Call() returns false. Thus Call() may not return for a while.
-// A false return can be caused by a dead server, a live server that
-// can't be reached, a lost request, or a lost reply.
 func (srv *PBServer) sendPrepare(server int, args *PrepareArgs, reply *PrepareReply) bool {
 	ok := srv.peers[server].Call("PBServer.Prepare", args, reply)
 	return ok==nil
@@ -265,12 +231,6 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) {
 	// Your code here
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
-
-	//whether the next entry to be added to the log is indeed at the index specified in the message
-	//srv.log[args.Index] == args.Entry??
-
-	//log.Printf("[%d] Server get prepare call", srv.me)
-	//log.Printf("[%d] currentView [%d] prepareview", srv.currentView, args.View)
 
 	if srv.currentView == args.View && len(srv.log) == args.Index {
 		srv.log = append(srv.log, args.Entry)
@@ -337,10 +297,7 @@ func (srv *PBServer) Recovery(args *RecoveryArgs, reply *RecoveryReply) {
 
 }
 
-// Some external oracle prompts the primary of the newView to
-// switch to the newView.
-// PromptViewChange just kicks start the view change protocol to move to the newView
-// It does not block waiting for the view change process to complete.
+
 func (srv *PBServer) PromptViewChange(newView int) {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -403,10 +360,7 @@ func (srv *PBServer) PromptViewChange(newView int) {
 	}()
 }
 
-// determineNewViewLog is invoked to determine the log for the newView based on
-// the collection of replies for successful ViewChange requests.
-// if a quorum of successful replies exist, then ok is set to true.
-// otherwise, ok = false.
+
 func (srv *PBServer) determineNewViewLog(successReplies []*ViewChangeReply) (
 	ok bool, newViewLog []interface{}) {
 		// Your code here
@@ -492,18 +446,9 @@ func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServer
 
 
 func main(){
-	clients := make([]*rpc.Client, 3)
+	clients := make([]*rpc.Client, 1)
 	// srv_num := 3
 	// ports := []string{":8082",":8083",":8084"}
-
-
-	//test used for
-	// for i := 0; i < srv_num; i++ {
-	// 	//go func(i int) {
-	// 		//log.Print("gofunction")
-	// 		createServer(i, clients, ports)
-	// 	// }()
-	// }
 
 
 	port := flag.String("port", ":8080", "http listen port")
