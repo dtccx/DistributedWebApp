@@ -67,7 +67,7 @@ func (db *DB) FollowUser(args *common.FollowUserArgs, reply *common.FollowUserRe
   return nil
 }
 
-func (db *DB) Login(args common.LogArgs, reply *common.LogReply) error {
+func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
   name := args.Name
   i, ok := db.user[name]
   if(ok){

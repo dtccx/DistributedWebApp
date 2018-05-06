@@ -187,10 +187,9 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) (
 	switch op{
 	case "login":
 		//var temp *common.LogArgs
-		temp,_ := args.Argu.(common.LogArgs)
+		temp,  _ := args.Argu.(common.LogArgs)
 		var reply *common.LogReply
-		srv.db.Login(temp, reply)
-
+		srv.db.Login(&temp, reply)
 	}
 
 
