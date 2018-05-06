@@ -8,6 +8,8 @@ import (
 	"flag"
 	"common"
 	"encoding/gob"
+	"os"
+	"os/signal"
 	// "net/http"
 )
 
@@ -468,7 +470,7 @@ func main(){
 	if(listenError!=nil){
 		log.Println(listenError)
 	}
-	server.Accept(l)
+	go server.Accept(l)
 
 	client, err := rpc.Dial("tcp", *port)
 	clients[*num] = client
@@ -477,5 +479,15 @@ func main(){
 	}
 	log.Println(client==nil)
 
+	signalChan := make(chan os.Signal, 1)
+	cleanupDone := make(chan bool)
+	signal.Notify(signalChan, os.Interrupt)
+	go func() {
+    for _ = range signalChan {
+        log.Println("\nReceived an interrupt, stopping services...\n")
+        cleanupDone <- true
+    }
+	}()
+	<-cleanupDone
 
 }
