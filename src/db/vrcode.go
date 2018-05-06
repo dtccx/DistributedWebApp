@@ -229,6 +229,13 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 		srv.db.UnLikeMsg(&temp, &reply2)
 		log.Print("unlike")
 		reply.Reply = reply2
+	case "DB.IsLike":
+		temp, _ := args.Argu.(common.IsLikeArgs)
+		log.Print(temp)
+		var reply2 common.IsLikeReply
+		srv.db.IsLike(&temp, &reply2)
+		log.Print("IsLike")
+		reply.Reply = reply2
 	}
 
 

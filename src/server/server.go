@@ -195,7 +195,6 @@ func signup(w http.ResponseWriter, r *http.Request) {
         // t, _ := template.ParseFiles("index.html")
         // log.Println(t.Execute(w, nil))
       }
-      gob.Register(common.SignReply{})
       reply,ok := vrReply.Reply.(common.SignReply)
       if(!ok){
         log.Fatal("convert error in signup")
@@ -221,11 +220,22 @@ func delUser(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "user_session")
   var temp interface{} = "user"
   name := session.Values[temp].(string)
-  args := &common.DelUserArgs{name}
-  var reply common.DelUserReply
-  err := arith.client.Call("DB.DelUser", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+
+  vrArgu := &common.VrArgu{}
+  args := common.DelUserArgs{name}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.DelUser"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+    // if need to refresh
+    // t, _ := template.ParseFiles("index.html")
+    // log.Println(t.Execute(w, nil))
+  }
+  reply,ok := vrReply.Reply.(common.DelUserReply)
+  if(!ok){
+    log.Fatal("convert error in login")
   }
 
   if(!reply.Success){
@@ -246,13 +256,31 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
     log.Println(session)
     var temp interface{} = "user"
     name := session.Values[temp].(string)
-    args := &common.SendMsgArgs{name, value}
-    var reply common.SendMsgReply
-    err := arith.client.Call("DB.SendMsg", args, &reply)
 
-    if err != nil {
-      log.Fatal("arith error:", err)
+
+
+    // args := &common.SendMsgArgs{name, value}
+    // var reply common.SendMsgReply
+    // err := arith.client.Call("DB.SendMsg", args, &reply)
+    //
+    // if err != nil {
+    //   log.Fatal("arith error:", err)
+    // }
+
+    vrArgu := &common.VrArgu{}
+    args := common.SendMsgArgs{name, value}
+    vrArgu.Argu = args
+    vrArgu.Op = "DB.SendMsg"
+    vrReply := &common.VrReply{}
+    vrErr := vp.CallVr(vrArgu, vrReply)
+    if(vrErr!=nil){
+      log.Fatal("vr error:", vrErr)
     }
+    reply,ok := vrReply.Reply.(common.SendMsgReply)
+    if(!ok){
+      log.Fatal("convert error in login")
+    }
+
 
     if(!reply.Success){
       //user exsit
@@ -280,13 +308,18 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
   var msg []common.Msg
   msgnum := 3
 
-
-  args := &common.GetMsgArgs{name}
-  var reply common.GetMsgReply
-  err := arith.client.Call("DB.GetMsg", args, &reply)
-
-  if err != nil {
-    log.Fatal("arith error:", err)
+  vrArgu := &common.VrArgu{}
+  args := common.GetMsgArgs{name}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.GetMsg"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+  }
+  reply,ok := vrReply.Reply.(common.GetMsgReply)
+  if(!ok){
+    log.Fatal("convert error in getMsg")
   }
 
   if(!reply.Success){
@@ -334,11 +367,25 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
 }
 
 func isLike(user string, msgid int) bool {
-  args := &common.IsLikeArgs{user, msgid}
-  var reply common.IsLikeReply
-  err := arith.client.Call("DB.IsLike", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+  // args := &common.IsLikeArgs{user, msgid}
+  // var reply common.IsLikeReply
+  // err := arith.client.Call("DB.IsLike", args, &reply)
+  // if err != nil {
+  //   log.Fatal("arith error:", err)
+  // }
+
+  vrArgu := &common.VrArgu{}
+  args := common.IsLikeArgs{user, msgid}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.IsLike"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+  }
+  reply,ok := vrReply.Reply.(common.IsLikeReply)
+  if(!ok){
+    log.Fatal("convert error in isLike")
   }
 
   if(reply.Success){
