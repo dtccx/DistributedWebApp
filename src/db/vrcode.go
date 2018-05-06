@@ -255,8 +255,13 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 			Index:        index,        // the index position at which the log entry is to be replicated on backups
 			Entry:        command,								 // the log entry to be replicated
 		}
-		replys[i] = &PrepareReply{}
-		srv.sendPrepare(i, prepareArgs, replys[i])
+		var reply PrepareReply
+		res := srv.sendPrepare(i, prepareArgs, &reply)
+		if(res == true){
+			replys <- &reply
+		}else {
+			replys <- nil
+		}
 
 	}
 	//Recovery
