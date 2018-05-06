@@ -286,6 +286,19 @@ func createServer(i int, clients []*rpc.Client, ports []string) {
 
 }
 
+type GetServerNumberArgs struct{
+
+}
+
+type GetServerNumberReply struct{
+	Number int
+}
+
+func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServerNumberReply) error{
+	reply.Number = srv.me
+	// log.Println("haha",srv.me)
+	return nil
+}
 
 func Test_VrCodeSetup(t *testing.T){
   clients := make([]*rpc.Client, 3)

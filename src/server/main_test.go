@@ -4,7 +4,7 @@ import (
   "testing"
   "log"
   "fmt"
-  "github.com/gorilla/sessions"
+  // "github.com/gorilla/sessions"
   "net/http/httptest"
   "io/ioutil"
   "net/http"
@@ -24,11 +24,29 @@ import (
 //   }
 //   fmt.Printf("Login Passed\n")
 // }
+
+type Msg struct {
+  ID            int
+  Value         string
+  User          string
+  LikeNum       int
+  IsLiked       bool
+}
+
+type User struct {
+	Name          string
+	Password      string
+}
+
 var urlString = "http://localhost:8080";
 
+// func TestInit(t *testing.T){
+//
+// }
+
 func TestLogin(t *testing.T){
-  store = sessions.NewCookieStore([]byte("something-very-secret"))
-  user = make(map[string]User)
+  // store := sessions.NewCookieStore([]byte("something-very-secret"))
+  user := make(map[string]User)
   user["user"] = User{"user", "password"}
   data := url.Values{}
   data.Set("user", "user")
@@ -49,7 +67,7 @@ func TestLogin(t *testing.T){
 }
 
 func TestIsLike(t *testing.T) {
-  like = make(map[string]map[int]bool)
+  like := make(map[string]map[int]bool)
   test_case1 := []string{"usera","userb","userb"}
   test_case2 := []int{1,0,1}
   temp := make(map[int]bool)
@@ -103,33 +121,33 @@ func TestServer(t *testing.T) {
 func TestGetMsg(t *testing.T){
 
 
-  user = make(map[string]User)
+  user := make(map[string]User)
   user["user"] = User{"user", "password"}
   data := url.Values{}
   data.Set("index", "-2")
   // data.Add("password", "password")
-  msg = []Msg{
-			  {
-          ID  : 0,
-          Value : "I like debuging :)",
-          User  : "usera",
-          LikeNum  : 2,
-          IsLiked : false,
-			  },
-        {
-          ID  : 1,
-          Value : "I literally like debuging :)",
-          User  : "userb",
-          LikeNum  : 3,
-          IsLiked : false,
-			  },
-        {
-          ID  : 2,
-          Value : "I really like debuging :)",
-          User  : "userc",
-          LikeNum  : 3,
-          IsLiked : false,
-			  }}
+  // msg := []Msg{
+	// 		  {
+  //         ID  : 0,
+  //         Value : "I like debuging :)",
+  //         User  : "usera",
+  //         LikeNum  : 2,
+  //         IsLiked : false,
+	// 		  },
+  //       {
+  //         ID  : 1,
+  //         Value : "I literally like debuging :)",
+  //         User  : "userb",
+  //         LikeNum  : 3,
+  //         IsLiked : false,
+	// 		  },
+  //       {
+  //         ID  : 2,
+  //         Value : "I really like debuging :)",
+  //         User  : "userc",
+  //         LikeNum  : 3,
+  //         IsLiked : false,
+	// 		  }}
 
       var latestmsg = []Msg{
           {
