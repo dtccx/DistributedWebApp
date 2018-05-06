@@ -81,11 +81,18 @@ func followList(w http.ResponseWriter, r *http.Request) {
   var temp interface{} = "user"
   name := session.Values[temp].(string)
 
-  args := &common.FollowListArgs{name}
-  var reply common.FollowListReply
-  err := arith.client.Call("DB.FollowList", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+  vrArgu := &common.VrArgu{}
+  args := common.FollowListArgs{name}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.FollowList"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+  }
+  reply,ok := vrReply.Reply.(common.FollowListReply)
+  if(!ok){
+    log.Fatal("convert error in FollowList")
   }
 
   j, _ := json.Marshal(reply.Msg)
@@ -100,12 +107,21 @@ func followUser(w http.ResponseWriter, r *http.Request) {
   var temp interface{} = "user"
   user := session.Values[temp].(string)
   follow := r.FormValue("user")
-  args := &common.FollowUserArgs{user, follow}
-  var reply common.FollowUserReply
-  err := arith.client.Call("DB.FollowUser", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+
+  vrArgu := &common.VrArgu{}
+  args := common.FollowUserArgs{user, follow}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.FollowUser"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
   }
+  reply,ok := vrReply.Reply.(common.FollowUserReply)
+  if(!ok){
+    log.Fatal("convert error in FollowUser")
+  }
+
 
   if(reply.IsFound){
     //user exsit
@@ -150,7 +166,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 func(t *Arith) _login(name string, password string) string{
     args := &common.LogArgs{name}
     //var reply common.LogReply
-    gob.Register(common.LogArgs{})
+
     vrArgu := &common.VrArgu{}
     vrArgu.Argu = args
     vrArgu.Op = "DB.Login"
@@ -191,9 +207,6 @@ func signup(w http.ResponseWriter, r *http.Request) {
       vrErr := vp.CallVr(vrArgu, vrReply)
       if(vrErr!=nil){
         log.Fatal("vr error:", vrErr)
-        // if need to refresh
-        // t, _ := template.ParseFiles("index.html")
-        // log.Println(t.Execute(w, nil))
       }
       reply,ok := vrReply.Reply.(common.SignReply)
       if(!ok){
@@ -256,16 +269,6 @@ func sendMsg(w http.ResponseWriter, r *http.Request) {
     log.Println(session)
     var temp interface{} = "user"
     name := session.Values[temp].(string)
-
-
-
-    // args := &common.SendMsgArgs{name, value}
-    // var reply common.SendMsgReply
-    // err := arith.client.Call("DB.SendMsg", args, &reply)
-    //
-    // if err != nil {
-    //   log.Fatal("arith error:", err)
-    // }
 
     vrArgu := &common.VrArgu{}
     args := common.SendMsgArgs{name, value}
@@ -367,13 +370,6 @@ func getMsg(w http.ResponseWriter, r *http.Request) {
 }
 
 func isLike(user string, msgid int) bool {
-  // args := &common.IsLikeArgs{user, msgid}
-  // var reply common.IsLikeReply
-  // err := arith.client.Call("DB.IsLike", args, &reply)
-  // if err != nil {
-  //   log.Fatal("arith error:", err)
-  // }
-
   vrArgu := &common.VrArgu{}
   args := common.IsLikeArgs{user, msgid}
   vrArgu.Argu = args
@@ -404,11 +400,18 @@ func likeMsg(w http.ResponseWriter, r *http.Request){
   msgid_str := r.FormValue("msgid")
   msgid, _ := strconv.Atoi(msgid_str)
 
-  args := &common.LikeArgs{name, msgid}
-  var reply common.LikeReply
-  err := arith.client.Call("DB.LikeMsg", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+  vrArgu := &common.VrArgu{}
+  args := common.LikeArgs{name, msgid}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.LikeMsg"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+  }
+  reply,ok := vrReply.Reply.(common.LikeReply)
+  if(!ok){
+    log.Fatal("convert error in LikeMsg")
   }
 
   if(!reply.Success){
@@ -434,11 +437,18 @@ func unlikeMsg(w http.ResponseWriter, r *http.Request) {
   msgid_str := r.FormValue("msgid")
   msgid, _ := strconv.Atoi(msgid_str)
 
-  args := &common.UnLikeArgs{name, msgid}
-  var reply common.UnLikeReply
-  err := arith.client.Call("DB.UnLikeMsg", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+  vrArgu := &common.VrArgu{}
+  args := common.UnLikeArgs{name, msgid}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.UnLikeMsg"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+  }
+  reply,ok := vrReply.Reply.(common.UnLikeReply)
+  if(!ok){
+    log.Fatal("convert error in UnLikeMsg")
   }
 
   if(!reply.Success){
@@ -460,11 +470,18 @@ func likeList(w http.ResponseWriter, r *http.Request) {
   var temp interface{} = "user"
   name := session.Values[temp].(string)
 
-  args := &common.LikeListArgs{name}
-  var reply common.LikeListReply
-  err := arith.client.Call("DB.LikeList", args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
+  vrArgu := &common.VrArgu{}
+  args := common.LikeListArgs{name}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.LikeList"
+  vrReply := &common.VrReply{}
+  vrErr := vp.CallVr(vrArgu, vrReply)
+  if(vrErr!=nil){
+    log.Fatal("vr error:", vrErr)
+  }
+  reply,ok := vrReply.Reply.(common.LikeListReply)
+  if(!ok){
+    log.Fatal("convert error in LikeList")
   }
 
   if(!reply.Success){
