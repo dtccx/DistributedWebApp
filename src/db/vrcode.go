@@ -111,9 +111,6 @@ func (srv *PBServer) ViewStatus() (currentView int, statusIsNormal bool) {
 	return srv.currentView, srv.status == NORMAL
 }
 
-// GetEntryAtIndex is called by tester to return the command replicated at
-// a specific log index. If the server's log is shorter than "index", then
-// ok = false, otherwise, ok = true
 func (srv *PBServer) GetEntryAtIndex(index int) (ok bool, command interface{}) {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -123,16 +120,10 @@ func (srv *PBServer) GetEntryAtIndex(index int) (ok bool, command interface{}) {
 	return false, command
 }
 
-// Kill is called by tester to clean up (e.g. stop the current server)
-// before moving on to the next test
 func (srv *PBServer) Kill() {
 	// Your code here, if necessary
 }
 
-// Make is called by tester to create and initalize a PBServer
-// peers is the list of RPC endpoints to every server (including self)
-// me is this server's index into peers.
-// startingView is the initial view (set to be zero) that all servers start in
 func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	gob.Register(common.SignArgs{})
 	srv := &PBServer{
@@ -150,18 +141,6 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	return srv
 }
 
-// Start() is invoked by tester on some replica server to replicate a
-// command.  Only the primary should process this request by appending
-// the command to its log and then return *immediately* (while the log is being replicated to backup servers).
-// if this server isn't the primary, returns false.
-// Note that since the function returns immediately, there is no guarantee that this command
-// will ever be committed upon return, since the primary
-// may subsequently fail before replicating the command to all servers
-//
-// The first return value is the index that the command will appear at
-// *if it's eventually committed*. The second return value is the current
-// view. The third return value is true if this server believes it is
-// the primary.
 func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -186,11 +165,15 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	//write -----> use
 	op := args.Op
 	switch op{
-	case "login":
+	case "DB.Login":
 		//var temp *common.LogArgs
 		temp,  _ := args.Argu.(common.LogArgs)
 		var reply *common.LogReply
 		srv.db.Login(&temp, reply)
+	case "DB.Signup":
+		temp, _ := args.Argu.(common.SignArgs)
+		var reply *common.SignReply
+		srv.db.Signup(&temp, reply)
 	}
 
 
