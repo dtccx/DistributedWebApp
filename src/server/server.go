@@ -187,6 +187,9 @@ func signup(w http.ResponseWriter, r *http.Request) {
       vrErr := vp.CallVr(vrArgu, vrReply)
       if(vrErr!=nil){
         log.Fatal("vr error:", vrErr)
+        // if need to refresh
+        // t, _ := template.ParseFiles("index.html")
+        // log.Println(t.Execute(w, nil))
       }
       gob.Register(common.SignReply{})
       reply,ok := vrReply.Reply.(common.SignReply)

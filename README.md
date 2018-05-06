@@ -101,6 +101,9 @@ And finally, in the third stage, to improve reliability, we will replicate the s
     For example. If the code is "static", Only when you runing under main folder pwd can work;    
     Otherwise, if you "cd into src/server", Golang need to add "../../static" to search the static file.  
 
+10. Use gob to transfer strong data structure to interface{}  
+    You can simply consider this transformation as JSON.  
+
 
 ## Picture of tests for each function:
 1.  Login and sign up Main Page:              

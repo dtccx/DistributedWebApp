@@ -10,6 +10,7 @@ import (
 	"encoding/gob"
 	"os"
 	"os/signal"
+	"errors"
 	// "net/http"
 )
 
@@ -119,6 +120,8 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	gob.Register(common.SignArgs{})
 	gob.Register(common.SignReply{})
 	gob.Register(common.LogArgs{})
+	gob.Register(common.DelUserArgs{})
+
 	srv := &PBServer{
 		peers:          peers,
 		me:             me,
@@ -144,16 +147,16 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 
 	// do not process command if status is not NORMAL
 	// and if i am not the primary in the current view
-	// if srv.status != NORMAL {
-	// 	return -1, srv.currentView, false
-	// } else if GetPrimary(srv.currentView, len(srv.peers)) != srv.me {
-	// 	return -1, srv.currentView, false
-	// }
+	if srv.status != NORMAL {
+		return errors.New("status is INNORMAL")
+	} else if GetPrimary(srv.currentView, len(srv.peers)) != srv.me {
+		return errors.New("This is not Primary SRV")
+	}
 
 	command := args
 	//append the command in its log
 	srv.log = append(srv.log, command)
-	srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
+	go srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
 
 	//write -----> use
 	op := args.Op
@@ -169,6 +172,13 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 		log.Print(temp)
 		var reply2 common.SignReply
 		srv.db.Signup(&temp, &reply2)
+		log.Print("sign")
+		reply.Reply = reply2
+	case "DB.DelUser":
+		temp, _ := args.Argu.(common.DelUserArgs)
+		log.Print(temp)
+		var reply2 common.DelUserReply
+		srv.db.DelUser(&temp, &reply2)
 		log.Print("sign")
 		reply.Reply = reply2
 	}
