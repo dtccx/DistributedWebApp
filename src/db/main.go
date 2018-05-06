@@ -6,28 +6,42 @@ import(
   "os"
   "os/signal"
   "net/rpc"
+  "strconv"
 )
 
-func main(){
-  clients := make([]*rpc.Client, 1)
 
-  peer := Make(clients, 0, 0)
+func createServer(clients []*rpc.Client, serverIndex int) *rpc.Client{
+  ps := Make(clients, serverIndex, 0)
   server := rpc.NewServer()
-  server.Register(peer)
-  l,listenError := net.Listen("tcp", ":8081")
+  server.Register(ps)
+  port := ":"+strconv.Itoa(8081+serverIndex)
+  l,listenError := net.Listen("tcp", port)
   if(listenError!=nil){
     log.Println(listenError)
   }
   go server.Accept(l)
-
-  client, err := rpc.Dial("tcp", ":8081")
+  client, err := rpc.Dial("tcp", port)
   clients[0] = client
   if(err!=nil){
     log.Println(err)
   }
   log.Println(client==nil)
 
-  signalChan := make(chan os.Signal, 1)
+  clients[serverIndex] = client
+
+  return client
+}
+
+func main(){
+  serverNum := 3
+  clients := make([]*rpc.Client, serverNum)
+  for i := 0; i < serverNum; i++ {
+	   createServer(clients, i)
+	}
+
+
+
+  signalChan := make(chan os.Signal, 2)
   cleanupDone := make(chan bool)
   signal.Notify(signalChan, os.Interrupt)
   go func() {

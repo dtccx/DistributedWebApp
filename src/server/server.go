@@ -29,6 +29,8 @@ func main() {
   // gob.RegisterName(common.SignArgs{})
   // gob.RegisterName("SignArgs",common.SignArgs{})
   // gob.Register(common.SignReply{})
+  gob.Register(common.VrArgu{})
+  gob.Register(common.VrReply{})
   gob.Register(common.SignReply{})
   gob.Register(common.SignArgs{})
   gob.Register(common.LogArgs{})

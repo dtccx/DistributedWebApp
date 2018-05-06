@@ -117,6 +117,9 @@ func (srv *PBServer) Kill() {
 }
 
 func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
+	gob.Register(common.VrArgu{})
+	gob.Register(common.VrReply{})
+
 	gob.Register(common.SignArgs{})
 	gob.Register(common.SignReply{})
 	gob.Register(common.LogArgs{})
@@ -156,7 +159,7 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	command := args
 	//append the command in its log
 	srv.log = append(srv.log, command)
-	go srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
+	srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
 
 	//write -----> use
 	op := args.Op
@@ -219,6 +222,7 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 }
 
 func (srv *PBServer) resendPrepare(command interface{}, index int, currentView int, commitIndex int) {
+	log.Println("start resendPrepare")
 	replys := make([]*PrepareReply, len(srv.peers))
 	for i, _ := range srv.peers {
 		if i == srv.me {
@@ -236,6 +240,7 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 		}
 		replys[i] = &PrepareReply{}
 		srv.sendPrepare(i, prepareArgs, replys[i])
+
 	}
 	//Recovery
 
@@ -251,59 +256,67 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 		}
 	}
 	//log.Printf("[%d] successful number", suc_num)
-
+	log.Println("suc_num:", suc_num)
+	log.Println("len(srv.peers)", len(srv.peers))
 	if suc_num >= (len(srv.peers) - 1) / 2 {
 		for {
-			srv.mu.Lock()
+			// srv.mu.Lock()
 			if srv.commitIndex + 1 == index {
 				srv.commitIndex += 1
-				srv.mu.Unlock()
+				// srv.mu.Unlock()
 				break
 			}
-			srv.mu.Unlock()
+			// srv.mu.Unlock()
 		}
 	} else {
 			//if not committed, resend prepare until index commmit
+			log.Println("resendPrepare call itself")
 			go srv.resendPrepare(command, index, currentView, commitIndex)
 	}
 
-
+	log.Println("end resendPrepare")
 }
 
 func (srv *PBServer) sendPrepare(server int, args *PrepareArgs, reply *PrepareReply) bool {
-	ok := srv.peers[server].Call("PBServer.Prepare", args, reply)
-	return ok==nil
+	log.Println("sendPrepare:", srv.peers[server])
+	log.Println("sendPrepare num:", len(srv.peers))
+	prepareErr := srv.peers[server].Call("PBServer.Prepare", args, reply)
+	log.Println("prepareErr:",prepareErr)
+	return prepareErr==nil
 }
 
 // Prepare is the RPC handler for the Prepare RPC
-func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) {
+func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 	// Your code here
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
 	if srv.currentView == args.View && len(srv.log) == args.Index {
+		log.Println("Prepare1")
 		srv.log = append(srv.log, args.Entry)
 		reply.View = srv.currentView
 		reply.Success = true
 		srv.commitIndex = args.PrimaryCommit
 		srv.lastNormalView = srv.currentView
-		return
+		return nil
 	}	else if srv.currentView == args.View && len(srv.log) > args.Index {
 		//log's capaticy is bigger, so should return true, but not append,and not recover
+		log.Println("Prepare2")
 		reply.View = args.View
 		reply.Success = true
-		return
+		return nil
 	} else {
 		//reply.View = srv.currentView
+		log.Println("Prepare3")
 		reply.Success = false
 		//no way to recover
 		if(srv.currentView > args.View) {
-			return
+			return nil
 		}
 
 		//deal with other prepare, no improve, don't know why.
 		//go srv.sendPrepare(srv.me, args, reply)
-
+		log.Println("Prepare4")
 		srv.status = RECOVERING
 		go func() {
 			recoveryArgs := &RecoveryArgs {
@@ -320,6 +333,7 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) {
 				srv.status = NORMAL
 			}
 		}()
+		return nil
 	}
 	// outdate := srv.currentView < args.View
 	// log.Printf("if the date outdated",outdate)
