@@ -117,13 +117,19 @@ func (srv *PBServer) Kill() {
 
 func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	gob.Register(common.SignArgs{})
+	gob.Register(common.SignReply{})
+	gob.Register(common.LogArgs{})
 	srv := &PBServer{
 		peers:          peers,
 		me:             me,
 		currentView:    startingView,
 		lastNormalView: startingView,
 		status:         NORMAL,
+		db:							new(DB),
 	}
+	srv.db.user = make(map[string]User)
+	srv.db.like = make(map[string]map[int]bool)
+	srv.db.follow = make(map[string]map[string]bool)
 	// all servers' log are initialized with a dummy command at index 0
 	var v interface{}
 	srv.log = append(srv.log, v)
@@ -135,7 +141,6 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
-
 
 	// do not process command if status is not NORMAL
 	// and if i am not the primary in the current view
@@ -156,17 +161,21 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	case "DB.Login":
 		//var temp *common.LogArgs
 		temp,  _ := args.Argu.(common.LogArgs)
-		var reply *common.LogReply
-		srv.db.Login(&temp, reply)
+		var reply2 *common.LogReply
+		srv.db.Login(&temp, reply2)
+		reply.Reply = *reply2
 	case "DB.Signup":
 		temp, _ := args.Argu.(common.SignArgs)
-		var reply *common.SignReply
-		srv.db.Signup(&temp, reply)
+		log.Print(temp)
+		var reply2 common.SignReply
+		srv.db.Signup(&temp, &reply2)
+		log.Print("sign")
+		reply.Reply = reply2
 	}
 
 
 
-	//log.Println(ok)
+	log.Println("return")
 //	log.Println(srv.IsCommitted(index))
 	return nil
 }
@@ -451,6 +460,9 @@ func main(){
 	clients := make([]*rpc.Client, 1)
 	// srv_num := 3
 	// ports := []string{":8082",":8083",":8084"}
+
+
+
 
 
 	port := flag.String("port", ":8080", "http listen port")

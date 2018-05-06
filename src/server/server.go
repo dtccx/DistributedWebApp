@@ -29,6 +29,9 @@ func main() {
   // gob.RegisterName(common.SignArgs{})
   // gob.RegisterName("SignArgs",common.SignArgs{})
   // gob.Register(common.SignReply{})
+  gob.Register(common.SignReply{})
+  gob.Register(common.SignArgs{})
+  gob.Register(common.LogArgs{})
   fs := http.FileServer(http.Dir("static"))
   http.Handle("/", fs)
 
@@ -131,7 +134,21 @@ func(t *Arith) _login(name string, password string) string{
     mu.Lock()
     var err error
     args := &common.LogArgs{name}
-    var reply common.LogReply
+    //var reply common.LogReply
+    gob.Register(common.LogArgs{})
+    vrArgu := &common.VrArgu{}
+    vrArgu.Argu = args
+    vrArgu.Op = "DB.Login"
+    vrReply := &common.VrReply{}
+    vrErr := vp.CallVr(vrArgu, vrReply)
+    if(vrErr!=nil){
+      log.Fatal("vr error:", vrErr)
+    }
+    reply,ok := vrReply.Reply.(common.LogReply)
+    if(!ok){
+      log.Fatal("convert error in login")
+    }
+
     log.Println("client", t.client)
     go func() {
       err = t.client.Call("DB.Login", args, &reply)
@@ -161,7 +178,6 @@ func signup(w http.ResponseWriter, r *http.Request) {
     name := r.FormValue("user")
     password := r.FormValue("password")
 
-    go func() {
       args := common.SignArgs{name, password}
       gob.Register(common.SignArgs{})
       vrArgu := &common.VrArgu{}
@@ -172,6 +188,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
       if(vrErr!=nil){
         log.Fatal("vr error:", vrErr)
       }
+      gob.Register(common.SignReply{})
       reply,ok := vrReply.Reply.(common.SignReply)
       if(!ok){
         log.Fatal("convert error in signup")
@@ -184,8 +201,8 @@ func signup(w http.ResponseWriter, r *http.Request) {
       }else {
         //user[name] = User{name, password}
         log.Print("signup success")
+        fmt.Fprintf(w, "1") //exsit
       }
-    }()
 
   } else {
     t, _ := template.ParseFiles("index.html")

@@ -102,9 +102,11 @@ func (db *DB) Signup(args *common.SignArgs, reply *common.SignReply) error {
   _, ok := db.user[name]
   if(ok){
     reply.Success = false
+    log.Print("alreay exist")
   }else{
     reply.Success = true
     db.user[name] = User{name, password}
+    log.Print(db.user[name])
   }
 	return nil
 }
