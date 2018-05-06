@@ -67,7 +67,23 @@ func (db *DB) FollowUser(args *common.FollowUserArgs, reply *common.FollowUserRe
   return nil
 }
 
-func (db *DB) Login(args common.LogArgs, reply *common.LogReply) error {
+func (db *DB) FollowList(args *common.FollowListArgs, reply *common.FollowListReply) error {
+  name := args.Name
+  _, ok := db.follow[name]
+  if(ok) {
+    for _, a_msg := range db.msg {
+      _, ok = db.follow[name][a_msg.User]
+      if(ok) {
+        reply.Msg = append(reply.Msg, a_msg)
+      }
+    }
+  }else {
+    //do nothing
+  }
+  return nil
+}
+
+func (db *DB) Login(args *common.LogArgs, reply *common.LogReply) error {
   name := args.Name
   i, ok := db.user[name]
   if(ok){

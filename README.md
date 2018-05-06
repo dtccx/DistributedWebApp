@@ -95,6 +95,11 @@ And finally, in the third stage, to improve reliability, we will replicate the s
 8.  In part2, we use RPC to communicate, but we use differenct types;  
     In part3, commmand should use same RPC to communciate, so we need to revise a lot.  
     For better, You can do RPC in Part2 with the same RPC, DON't USE STRONG TYPE.
+9.  fs := http.FileServer(http.Dir("../../static"))    
+    Cause server 404. Why?(Static file load Problem)     
+    This is because the running pwd different.   
+    For example. If the code is "static", Only when you runing under main folder pwd can work;    
+    Otherwise, if you "cd into src/server", Golang need to add "../../static" to search the static file.  
 
 
 ## Picture of tests for each function:
