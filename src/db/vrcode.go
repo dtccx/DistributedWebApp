@@ -13,6 +13,7 @@ import (
 	"net"
 	"flag"
 	"common"
+	"encoding/gob"
 	// "net/http"
 )
 
@@ -133,6 +134,7 @@ func (srv *PBServer) Kill() {
 // me is this server's index into peers.
 // startingView is the initial view (set to be zero) that all servers start in
 func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
+	gob.Register(common.SignArgs{})
 	srv := &PBServer{
 		peers:          peers,
 		me:             me,
@@ -160,8 +162,7 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 // *if it's eventually committed*. The second return value is the current
 // view. The third return value is true if this server believes it is
 // the primary.
-func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) (
-	index int, view int, ok bool) {
+func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
@@ -170,11 +171,11 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) (
 	//log.Printf("GetPrimary[%d]  me[%d]", GetPrimary(srv.currentView, len(srv.peers)), srv.me)
 	// do not process command if status is not NORMAL
 	// and if i am not the primary in the current view
-	if srv.status != NORMAL {
-		return -1, srv.currentView, false
-	} else if GetPrimary(srv.currentView, len(srv.peers)) != srv.me {
-		return -1, srv.currentView, false
-	}
+	// if srv.status != NORMAL {
+	// 	return -1, srv.currentView, false
+	// } else if GetPrimary(srv.currentView, len(srv.peers)) != srv.me {
+	// 	return -1, srv.currentView, false
+	// }
 
 	command := args
 	// Your code here
@@ -196,7 +197,7 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) (
 
 	//log.Println(ok)
 //	log.Println(srv.IsCommitted(index))
-	return len(srv.log) - 1, srv.currentView, true
+	return nil
 }
 
 func (srv *PBServer) resendPrepare(command interface{}, index int, currentView int, commitIndex int) {

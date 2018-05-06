@@ -3,6 +3,8 @@ package vrproxy
 import (
   "common"
   "net/rpc"
+  // "encoding/gob"
+  "log"
 )
 
 type VrProxy struct{
@@ -10,7 +12,11 @@ type VrProxy struct{
 }
 
 func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
+  // gob.RegisterName("haha",common.SignArgs{})
+  // gob.RegisterName("common.SignArgs",common.SignArgs{})
+  // log.Println("reach?")
   err := vp.client.Call("PBServer.Start", argu, reply)
+  log.Println(err)
   return err
 }
 
