@@ -236,6 +236,27 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 		srv.db.IsLike(&temp, &reply2)
 		log.Print("IsLike")
 		reply.Reply = reply2
+	case "DB.FollowList":
+		temp, _ := args.Argu.(common.FollowListArgs)
+		log.Print(temp)
+		var reply2 common.FollowListReply
+		srv.db.FollowList(&temp, &reply2)
+		log.Print("FollowList")
+		reply.Reply = reply2
+	case "DB.FollowUser":
+		temp, _ := args.Argu.(common.FollowUserArgs)
+		log.Print(temp)
+		var reply2 common.FollowUserReply
+		srv.db.FollowUser(&temp, &reply2)
+		log.Print("FollowUser")
+		reply.Reply = reply2
+	case "DB.LikeList":
+		temp, _ := args.Argu.(common.LikeListArgs)
+		log.Print(temp)
+		var reply2 common.LikeListReply
+		srv.db.LikeList(&temp, &reply2)
+		log.Print("LikeList:", reply2)
+		reply.Reply = reply2
 	}
 
 
