@@ -10,7 +10,6 @@ import (
   "github.com/gorilla/sessions"
   "encoding/json"
   "strconv"
-  "sync"
   "vrproxy"
   "encoding/gob"
 )
@@ -149,9 +148,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func(t *Arith) _login(name string, password string) string{
-    var mu sync.Mutex
-    mu.Lock()
-    var err error
     args := &common.LogArgs{name}
     //var reply common.LogReply
     gob.Register(common.LogArgs{})
@@ -169,21 +165,10 @@ func(t *Arith) _login(name string, password string) string{
     }
 
     log.Println("client", t.client)
-    go func() {
-      err = t.client.Call("DB.Login", args, &reply)
-      mu.Unlock()
-      //client.Call("DB.Login", args, &reply)
-    }()
-    mu.Lock()
-    if err != nil {
-      log.Fatal("arith error:", err)
-    }
     if(reply.Success && reply.Password == password){
       log.Println(reply.Password)
-      mu.Unlock()
       return "true"
       }else {
-        mu.Unlock()
         return "false"
       }
 

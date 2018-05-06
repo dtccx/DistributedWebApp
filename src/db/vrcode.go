@@ -184,9 +184,9 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	case "DB.Login":
 		//var temp *common.LogArgs
 		temp,  _ := args.Argu.(common.LogArgs)
-		var reply2 *common.LogReply
-		srv.db.Login(&temp, reply2)
-		reply.Reply = *reply2
+		var reply2 common.LogReply
+		srv.db.Login(&temp, &reply2)
+		reply.Reply = reply2
 	case "DB.Signup":
 		temp, _ := args.Argu.(common.SignArgs)
 		log.Print(temp)
