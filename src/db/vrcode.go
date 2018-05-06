@@ -179,7 +179,35 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 		log.Print(temp)
 		var reply2 common.DelUserReply
 		srv.db.DelUser(&temp, &reply2)
-		log.Print("sign")
+		log.Print("delete user")
+		reply.Reply = reply2
+	case "DB.SendMsg":
+		temp, _ := args.Argu.(common.SendMsgArgs)
+		log.Print(temp)
+		var reply2 common.SendMsgReply
+		srv.db.SendMsg(&temp, &reply2)
+		log.Print("snedmsg")
+		reply.Reply = reply2
+	case "DB.GetMsg":
+		temp, _ := args.Argu.(common.GetMsgArgs)
+		log.Print(temp)
+		var reply2 common.GetMsgReply
+		srv.db.GetMsg(&temp, &reply2)
+		log.Print("getmsg")
+		reply.Reply = reply2
+	case "DB.LikeMsg":
+		temp, _ := args.Argu.(common.LikeArgs)
+		log.Print(temp)
+		var reply2 common.LikeReply
+		srv.db.LikeMsg(&temp, &reply2)
+		log.Print("like")
+		reply.Reply = reply2
+	case "DB.UnLikeMsg":
+		temp, _ := args.Argu.(common.UnLikeArgs)
+		log.Print(temp)
+		var reply2 common.UnLikeReply
+		srv.db.UnLikeMsg(&temp, &reply2)
+		log.Print("unlike")
 		reply.Reply = reply2
 	}
 
