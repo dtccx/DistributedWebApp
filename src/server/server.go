@@ -162,17 +162,11 @@ func signup(w http.ResponseWriter, r *http.Request) {
     password := r.FormValue("password")
 
     go func() {
-      // var args interface{} = common.SignArgs{name, password}
       args := common.SignArgs{name, password}
-      // gob.RegisterName("common.SignArgs", args)
       gob.Register(common.SignArgs{})
-      // log.Println(args)
-      // _args, ok := args.(interface{})
-      // if(!ok){
-      //   fmt.Println("fail to convert args to interface{}")
-      // }
       vrArgu := &common.VrArgu{}
       vrArgu.Argu = args
+      vrArgu.Op = "DB.Signup"
       vrReply := &common.VrReply{}
       vrErr := vp.CallVr(vrArgu, vrReply)
       if(vrErr!=nil){
