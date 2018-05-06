@@ -79,4 +79,41 @@ func TestCallVrTypeTransform(t *testing.T){
   realTypeObject, ok := reply.Reply.(int)
   assertEqualWithMsg(t, ok, true, "t5")
   assertEqualWithMsg(t, realTypeObject,6,"t6")
+
+}
+
+
+func TestCallVrTypeTransform2(t *testing.T){
+  gob.Register(common.LogArgs{})
+  // gob.Register(GetServerNumberReply{})
+  server := rpc.NewServer()
+  ts := new(PBServer)
+  server.Register(ts)
+  l,listenError := net.Listen("tcp", ":9001")
+  assertEqualWithMsg(t, listenError==nil, true, "t1")
+	go server.Accept(l)
+
+  client, err := rpc.Dial("tcp", ":9001")
+	assertEqualWithMsg(t, err==nil, true, "t2")
+	assertEqualWithMsg(t, client!=nil, true,"t3")
+  vp := VrProxy{}
+  vp.client = client
+
+
+  innerArgu := common.LogArgs{}
+  argu := &common.VrArgu{}
+  argu.Argu = innerArgu
+  argu.Op = "Test"
+
+  // innerVrReply := LogReply{}
+  reply := &common.VrReply{}
+  // reply.Reply = innerVrReply
+  vrErr := vp.CallVr(argu, reply)
+  fmt.Println(vrErr)
+  assertEqualWithMsg(t, vrErr==nil, true, "t4")
+
+  realTypeObject, ok := reply.Reply.(int)
+  assertEqualWithMsg(t, ok, true, "t5")
+  assertEqualWithMsg(t, realTypeObject,6,"t6")
+
 }

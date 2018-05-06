@@ -12,6 +12,7 @@ import (
   "strconv"
   "sync"
   "vrproxy"
+  "encoding/gob"
 )
 
 type Arith struct {
@@ -25,6 +26,9 @@ var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 
 func main() {
+  // gob.RegisterName(common.SignArgs{})
+  // gob.RegisterName("SignArgs",common.SignArgs{})
+  // gob.Register(common.SignReply{})
   fs := http.FileServer(http.Dir("../../static"))
   http.Handle("/", fs)
 
@@ -158,35 +162,36 @@ func signup(w http.ResponseWriter, r *http.Request) {
     password := r.FormValue("password")
 
     go func() {
-    args := &common.SignArgs{name, password}
-    // var reply common.SignReply
-    // err := arith.client.Call("DB.Signup", args, &reply)
-    vrArgu := &common.VrArgu{}
-    vrArgu.Argu = args
-    vrReply := &common.VrReply{}
-    // vrReply.Reply = reply
-    vrErr := vp.CallVr(vrArgu, vrReply)
-    if(vrErr!=nil){
-      log.Fatal("vr error:", vrErr)
-    }
-    //client.Call("DB.Login", args, &reply)
-    // if err != nil {
-    //   log.Fatal("arith error:", err)
-    // }
-    reply,ok := vrReply.Reply.(common.SignReply)
-    if(!ok){
-      log.Fatal("convert error in signup")
-    }
-    if(!reply.Success){
-      //user exsit
-      log.Println("User already exist")
-      fmt.Fprintf(w, "0") //exsit
+      // var args interface{} = common.SignArgs{name, password}
+      args := common.SignArgs{name, password}
+      // gob.RegisterName("common.SignArgs", args)
+      gob.Register(common.SignArgs{})
+      // log.Println(args)
+      // _args, ok := args.(interface{})
+      // if(!ok){
+      //   fmt.Println("fail to convert args to interface{}")
+      // }
+      vrArgu := &common.VrArgu{}
+      vrArgu.Argu = args
+      vrReply := &common.VrReply{}
+      vrErr := vp.CallVr(vrArgu, vrReply)
+      if(vrErr!=nil){
+        log.Fatal("vr error:", vrErr)
+      }
+      reply,ok := vrReply.Reply.(common.SignReply)
+      if(!ok){
+        log.Fatal("convert error in signup")
+      }
+      if(!reply.Success){
+        //user exsit
+        log.Println("User already exist")
+        fmt.Fprintf(w, "0") //exsit
 
-    }else {
-      //user[name] = User{name, password}
-      log.Print("signup success")
-    }
-  }()
+      }else {
+        //user[name] = User{name, password}
+        log.Print("signup success")
+      }
+    }()
 
   } else {
     t, _ := template.ParseFiles("index.html")
