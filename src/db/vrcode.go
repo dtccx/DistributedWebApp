@@ -118,12 +118,29 @@ func (srv *PBServer) Kill() {
 
 func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	gob.Register(common.VrArgu{})
-	gob.Register(common.VrReply{})
-
-	gob.Register(common.SignArgs{})
-	gob.Register(common.SignReply{})
-	gob.Register(common.LogArgs{})
-	gob.Register(common.DelUserArgs{})
+  gob.Register(common.VrReply{})
+  gob.Register(common.SignReply{})
+  gob.Register(common.SignArgs{})
+  gob.Register(common.LogArgs{})
+  gob.Register(common.LogReply{})
+  gob.Register(common.DelUserArgs{})
+  gob.Register(common.DelUserReply{})
+  gob.Register(common.SendMsgArgs{})
+  gob.Register(common.SendMsgReply{})
+  gob.Register(common.GetMsgArgs{})
+  gob.Register(common.GetMsgReply{})
+  gob.Register(common.LikeArgs{})
+  gob.Register(common.LikeReply{})
+  gob.Register(common.UnLikeArgs{})
+  gob.Register(common.UnLikeReply{})
+  gob.Register(common.LikeListArgs{})
+  gob.Register(common.LikeListReply{})
+  gob.Register(common.IsLikeArgs{})
+  gob.Register(common.IsLikeReply{})
+  gob.Register(common.FollowUserArgs{})
+  gob.Register(common.FollowUserReply{})
+  gob.Register(common.FollowListArgs{})
+  gob.Register(common.FollowListReply{})
 
 	srv := &PBServer{
 		peers:          peers,
