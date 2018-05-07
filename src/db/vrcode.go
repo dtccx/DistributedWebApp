@@ -22,25 +22,25 @@ const (
 	RECOVERING			//2
 )
 
-// type PBServer_test struct {
-// 	mu             sync.Mutex          // Lock to protect shared access to this peer's state
-// 	peers				   []*labrpc.ClientEnd
-// 	me             int                 // this peer's index into peers[]
-// 	currentView    int                 // what this peer believes to be the current active view
-// 	status         int                 // the server's current status (NORMAL, VIEWCHANGE or RECOVERING)
-// 	lastNormalView int                 // the latest view which had a NORMAL status
-//
-// 	log         []interface{} // the log of "commands"
-// 	commitIndex int           // all log entries <= commitIndex are considered to have been committed.
-//
-// 	db					*DB
-// }
+type PBServer_test struct {
+	mu             sync.Mutex          // Lock to protect shared access to this peer's state
+	peers				   []*labrpc.ClientEnd
+	me             int                 // this peer's index into peers[]
+	currentView    int                 // what this peer believes to be the current active view
+	status         int                 // the server's current status (NORMAL, VIEWCHANGE or RECOVERING)
+	lastNormalView int                 // the latest view which had a NORMAL status
+
+	log         []interface{} // the log of "commands"
+	commitIndex int           // all log entries <= commitIndex are considered to have been committed.
+
+	db					*DB
+}
 
 // PBServer defines the state of a replica server (either primary or backup)
 type PBServer struct {
 	mu             sync.Mutex          // Lock to protect shared access to this peer's state
 	peers          []*rpc.Client // RPC end points of all peers
-	peers_test		   []*labrpc.ClientEnd
+	peerstest		   []*labrpc.ClientEnd
 	me             int                 // this peer's index into peers[]
 	currentView    int                 // what this peer believes to be the current active view
 	status         int                 // the server's current status (NORMAL, VIEWCHANGE or RECOVERING)
@@ -193,31 +193,28 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 
 	// do not process command if status is not NORMAL
 	// and if i am not the primary in the current view
-
-
-	if(args.Op == "test") {
-		if srv.status != NORMAL {
-			// if(args.Op == "test"){
+	test000 := GetPrimary(srv.currentView, len(srv.peers))
+	log.Print("GetPrimary(srv.currentView, len(srv.peers))",test000, srv.me)
+	if srv.status != NORMAL {
+		if(args.Op == "test"){
 			reply2 := common.TestReply{-1, srv.currentView, false}
 			// log.Print("LikeList:", reply2)
 			reply.Reply = reply2
-			// }
-			return errors.New("status is INNORMAL")
-			}	else if GetPrimary(srv.currentView, len(srv.peers_test)) != srv.me {
+		}
+		return errors.New("status is INNORMAL")
+	}	else if GetPrimary(srv.currentView, len(srv.peers)) != srv.me {
+		if(args.Op == "test"){
+			// temp, _ := args.Argu.(common.LikeListArgs)
+			// log.Print(temp)
+			// var reply2 common.LikeListReply
+			// srv.db.LikeList(&temp, &reply2)
 
-				reply2 := common.TestReply{-1, srv.currentView, false}
-				// log.Print("LikeList:", reply2)
-				reply.Reply = reply2
-				// }
-				return errors.New("This is not Primary SRV")
-			}
-			}else {
-				if srv.status != NORMAL {
-					return errors.New("status is INNORMAL")
-					}	else if GetPrimary(srv.currentView, len(srv.peers)) != srv.me {
-						return errors.New("This is not Primary SRV")
-					}
-				}
+			reply2 := common.TestReply{-1, srv.currentView, false}
+			// log.Print("LikeList:", reply2)
+			reply.Reply = reply2
+		}
+		return errors.New("This is not Primary SRV")
+	}
 
 	command := args
 	//append the command in its log

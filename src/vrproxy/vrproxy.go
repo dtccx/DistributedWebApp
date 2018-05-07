@@ -29,7 +29,7 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
       client_temp.Call("PBServer.DealPrimay", arg, reply)
       if(reply.OK) {
         vp = Make(client_temp)
-        // vp.CallVr(argu, reply)
+        vp.CallVr(argu, reply)
       }
     }
   }
