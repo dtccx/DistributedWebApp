@@ -12,6 +12,7 @@ import (
   "strconv"
   "vrproxy"
   "encoding/gob"
+  "net"
 )
 
 type Arith struct {
@@ -23,8 +24,35 @@ var vp *vrproxy.VrProxy
 
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
+func createServer(clients []*rpc.Client, serverIndex int) *rpc.Client{
+  ps := Make(clients, serverIndex, 0)
+  server := rpc.NewServer()
+  server.Register(ps)
+  port := ":"+strconv.Itoa(8081+serverIndex)
+  l,listenError := net.Listen("tcp", port)
+  if(listenError!=nil){
+    log.Println(listenError)
+  }
+  go server.Accept(l)
+  client, err := rpc.Dial("tcp", port)
+  clients[0] = client
+  if(err!=nil){
+    log.Println(err)
+  }
+  log.Println(client==nil)
+
+  clients[serverIndex] = client
+
+  return client
+}
 
 func main() {
+  serverNum := 3
+  clients := make([]*rpc.Client, serverNum)
+  for i := 0; i < serverNum; i++ {
+	   createServer(clients, i)
+	}
+
   gob.Register(common.VrArgu{})
   gob.Register(common.VrReply{})
   gob.Register(common.SignReply{})
