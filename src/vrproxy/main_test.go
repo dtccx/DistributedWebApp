@@ -117,3 +117,7 @@ func TestCallVrTypeTransform2(t *testing.T){
   assertEqualWithMsg(t, realTypeObject,6,"t6")
 
 }
+
+func TestCallPrimaryFail(t *testing.T) {
+  
+}

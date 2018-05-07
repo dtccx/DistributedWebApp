@@ -81,11 +81,16 @@ func main() {
   fs := http.FileServer(http.Dir("static"))
   http.Handle("/", fs)
 
+  //get primary:
+
+
   client, err := rpc.Dial("tcp", "localhost:8081")
   if err != nil {
     log.Fatal("dialing:", err)
   }
   vp = vrproxy.Make(client)
+
+
 
   arith = &Arith{client: client}
 

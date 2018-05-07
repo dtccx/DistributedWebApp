@@ -161,6 +161,15 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	return srv
 }
 
+func (srv *PBServer) DealPrimay(args common.DealPrimayArgs, reply *common.DealPrimayReply) error {
+	if (srv.me != GetPrimary(srv.currentView, len(srv.peers))){
+		reply.OK = false
+	} else {
+		reply.OK = true
+	}
+	return nil
+}
+
 func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
