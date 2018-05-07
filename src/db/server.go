@@ -35,7 +35,7 @@ func createServer(clients []*rpc.Client, serverIndex int) (*rpc.Client, *PBServe
   }
   go server.Accept(l)
   client, err := rpc.Dial("tcp", port)
-  clients[0] = client
+  clients[serverIndex] = client
   if(err!=nil){
     log.Println(err)
   }
