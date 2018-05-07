@@ -24,10 +24,10 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
       if(err != nil) {
         break
       }
-      var reply *common.DealPrimayReply
-      var arg common.DealPrimayArgs
-      client_temp.Call("PBServer.DealPrimay", arg, reply)
-      if(reply.OK) {
+      var reply2 *common.DealPrimayReply
+      var argu2 common.DealPrimayArgs
+      client_temp.Call("PBServer.DealPrimay", argu2, reply2)
+      if(reply2.OK) {
         vp = Make(client_temp)
         vp.CallVr(argu, reply)
       }
