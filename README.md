@@ -56,6 +56,12 @@
     ```   
     go test
     ```
+    Test replication of the server:
+    ```
+    cd src/db
+    
+    go test -v -run 1AConcurrent
+    ```
 
 
 

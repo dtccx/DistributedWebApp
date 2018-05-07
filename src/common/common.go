@@ -8,7 +8,7 @@ var Address = []string{":8081",":8082",":8083"}
   // Address[2] = ":8083"
 
 type DealPrimayArgs struct {
-  
+
 }
 
 type DealPrimayReply struct {
@@ -125,4 +125,14 @@ type VrArgu struct{
 
 type VrReply struct{
   Reply interface{}
+}
+
+type TestArgs struct {
+
+}
+
+type TestReply struct {
+  Index     int
+  View      int
+  OK        bool
 }
