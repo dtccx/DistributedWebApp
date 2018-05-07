@@ -1,5 +1,11 @@
 package common
 
+Address := []string {":8081",":8082",":8083"}
+
+type DealPrimayReply struct {
+  OK            bool
+}
+
 type Msg struct {
   ID            int
   Value         string
