@@ -31,7 +31,7 @@ type config struct {
 	net       *labrpc.Network
 	n         int
 	done      int32 // tell internal threads to die
-	pbservers []*PBServer_test
+	pbservers []*PBServer
 	applyErr  []string   // from apply channel readers
 	connected []bool     // whether each server is on the net
 	endnames  [][]string // the port file names each sends to
@@ -52,7 +52,7 @@ func make_config(t *testing.T, n int, unreliable bool) *config {
 	cfg.net = labrpc.MakeNetwork()
 	cfg.n = n
 	cfg.applyErr = make([]string, cfg.n)
-	cfg.pbservers = make([]*PBServer_test, cfg.n)
+	cfg.pbservers = make([]*PBServer, cfg.n)
 	cfg.connected = make([]bool, cfg.n)
 	cfg.endnames = make([][]string, cfg.n)
 
@@ -233,7 +233,7 @@ func (cfg *config) checkCommittedIndex(index int, command interface{}, expectedS
 func (cfg *config) replicateOne(server int, cmd int, expectedServers int) (
 	index int) {
 	// submit command to primary
-	var pri *PBServer_test
+	var pri *PBServer
 	cfg.mu.Lock()
 	pri = cfg.pbservers[server]
 	cfg.mu.Unlock()
