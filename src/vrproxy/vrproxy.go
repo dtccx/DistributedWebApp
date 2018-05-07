@@ -12,11 +12,6 @@ type VrProxy struct{
 }
 
 func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
-  // gob.RegisterName("haha",common.SignArgs{})
-  // gob.RegisterName("common.SignArgs",common.SignArgs{})
-  // log.Println("reach?")
-
-
   // call primary
   err := vp.client.Call("PBServer.Start", argu, reply)
   if(err != nil) {
@@ -34,6 +29,7 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
       client_temp.Call("PBServer.DealPrimay", arg, reply)
       if(reply.OK) {
         vp = Make(client_temp)
+        vp.CallVr(argu, reply)
       }
     }
   }
