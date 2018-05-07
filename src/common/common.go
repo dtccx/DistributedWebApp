@@ -1,6 +1,15 @@
 package common
 
-Address := []string {":8081",":8082",":8083"}
+var Address = []string{":8081",":8082",":8083"}
+
+
+  // Address[0] = ":8081"
+  // Address[1] = ":8082"
+  // Address[2] = ":8083"
+
+type DealPrimayArgs struct {
+  
+}
 
 type DealPrimayReply struct {
   OK            bool

@@ -26,23 +26,25 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
     //This way if the group has moved to a later view, its message will reach the new primary.
     for i := 0; i < len(common.Address); i++ {
       client_temp, err := rpc.Dial("tcp", "localhost" + common.Address[i])
+      if(err != nil) {
+        break
+      }
       var reply *common.DealPrimayReply
-      err := vp.client_temp.Call("PBServer.DealPrimay", reply)
+      var arg common.DealPrimayArgs
+      client_temp.Call("PBServer.DealPrimay", arg, reply)
       if(reply.OK) {
-        client = client_temp
+        vp = Make(client_temp)
       }
     }
   }
   log.Println(err)
+
+  // client, err := rpc.Dial("tcp", "localhost:8081")
+
   return err
 
-  client, err := rpc.Dial("tcp", "localhost:8081")
-
 }
 
-func (vp *VrProxy) GetPrimary() error {
-
-}
 
 
 func Make(client *rpc.Client) *VrProxy{

@@ -161,7 +161,7 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 	return srv
 }
 
-func (srv *PBServer) DealPrimay(reply *common.DealPrimayReply) error {
+func (srv *PBServer) DealPrimay(args common.DealPrimayArgs, reply *common.DealPrimayReply) error {
 	if (srv.me != GetPrimary(srv.currentView, len(srv.peers))){
 		reply.OK = false
 	} else {
@@ -292,13 +292,8 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 			Index:        index,        // the index position at which the log entry is to be replicated on backups
 			Entry:        command,								 // the log entry to be replicated
 		}
-		var reply PrepareReply
-		res := srv.sendPrepare(i, prepareArgs, &reply)
-		if(res == true){
-			replys <- &reply
-		}else {
-			replys <- nil
-		}
+		replys[i] = &PrepareReply{}
+		srv.sendPrepare(i, prepareArgs, replys[i])
 
 	}
 	//Recovery
