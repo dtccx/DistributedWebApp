@@ -162,7 +162,12 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 }
 
 func (srv *PBServer) DealPrimay(reply *common.DealPrimayReply) error {
-	if (srv.me != GetPrimary(srv.currentView, len(srv.peers)))
+	if (srv.me != GetPrimary(srv.currentView, len(srv.peers))){
+		reply.OK = false
+	} else {
+		reply.OK = true
+	}
+	return nil
 }
 
 func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
