@@ -10,6 +10,7 @@ import (
   "net/http"
   "net/url"
   "encoding/json"
+  "common"
 )
 
 // func TestLogin(t *testing.T){
@@ -25,18 +26,18 @@ import (
 //   fmt.Printf("Login Passed\n")
 // }
 
-type Msg struct {
-  ID            int
-  Value         string
-  User          string
-  LikeNum       int
-  IsLiked       bool
-}
-
-type User struct {
-	Name          string
-	Password      string
-}
+// type Msg struct {
+//   ID            int
+//   Value         string
+//   User          string
+//   LikeNum       int
+//   IsLiked       bool
+// }
+//
+// type User struct {
+// 	Name          string
+// 	Password      string
+// }
 
 var urlString = "http://localhost:8080";
 
@@ -149,7 +150,7 @@ func TestGetMsg(t *testing.T){
   //         IsLiked : false,
 	// 		  }}
 
-      var latestmsg = []Msg{
+      var latestmsg = []common.Msg{
           {
             ID  : 2,
             Value : "I really like debuging :)",
