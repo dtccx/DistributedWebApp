@@ -4,11 +4,17 @@ import (
   "testing"
   "net/rpc"
   "net"
-  // "net/http"
   "log"
   "common"
   "strconv"
   "fmt"
+  "net/http/httptest"
+  "io/ioutil"
+  "net/http"
+  "net/url"
+  "encoding/json"
+  "vrproxy"
+  "encoding/gob"
 )
 
 func _assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
@@ -267,25 +273,6 @@ func Test_LikeList(t *testing.T){
   log.Println("Test_LikeList pass!")
 }
 
-func createServer(i int, clients []*rpc.Client, ports []string) {
-	peer := Make(clients, i, 0)
-	server := rpc.NewServer()
-	server.Register(peer)
-	l,listenError := net.Listen("tcp", ports[i])
-	if(listenError!=nil){
-		log.Println(listenError)
-	}
-	go server.Accept(l)
-
-	client, err := rpc.Dial("tcp", "localhost" + ports[i])
-	clients[i] = client
-	if(err!=nil){
-		log.Println(err)
-	}
-	// log.Println(client==nil)
-
-}
-
 type GetServerNumberArgs struct{
 
 }
@@ -300,22 +287,248 @@ func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServer
 	return nil
 }
 
-func Test_VrCodeSetup(t *testing.T){
-  clients := make([]*rpc.Client, 3)
-  srv_num := 3
-  ports := []string{":8082",":8083",":8084"}
+// func Test_VrCodeSetup(t *testing.T){
+//   clients := make([]*rpc.Client, 3)
+//   srv_num := 3
+//   ports := []string{":8082",":8083",":8084"}
+//
+//   for i := 0; i < srv_num; i++ {
+//   		createServer(i, clients, ports)
+//   }
+//
+//   argu := &GetServerNumberArgs{}
+// 	reply := &GetServerNumberReply{}
+// 	clients[0].Call("PBServer.GetServerNumber", argu, reply)
+//   assertEqual(t, reply.Number, 0)
+//   clients[1].Call("PBServer.GetServerNumber", argu, reply)
+//   assertEqual(t, reply.Number, 1)
+//   clients[2].Call("PBServer.GetServerNumber", argu, reply)
+//   assertEqual(t, reply.Number, 2)
+// }
 
-  for i := 0; i < srv_num; i++ {
-  		createServer(i, clients, ports)
+
+
+//*******************************************
+//*******************************************
+//*******************************************
+//integration test
+//*******************************************
+//*******************************************
+//*******************************************
+var urlString = "http://localhost:8080";
+
+var pbservers []*PBServer
+
+func TestIntegrationInit(t *testing.T){
+  gob.Register(common.VrArgu{})
+  gob.Register(common.VrReply{})
+  gob.Register(common.SignReply{})
+  gob.Register(common.SignArgs{})
+  gob.Register(common.LogArgs{})
+  gob.Register(common.LogReply{})
+  gob.Register(common.DelUserArgs{})
+  gob.Register(common.DelUserReply{})
+  gob.Register(common.SendMsgArgs{})
+  gob.Register(common.SendMsgReply{})
+  gob.Register(common.GetMsgArgs{})
+  gob.Register(common.GetMsgReply{})
+  gob.Register(common.LikeArgs{})
+  gob.Register(common.LikeReply{})
+  gob.Register(common.UnLikeArgs{})
+  gob.Register(common.UnLikeReply{})
+  gob.Register(common.LikeListArgs{})
+  gob.Register(common.LikeListReply{})
+  gob.Register(common.IsLikeArgs{})
+  gob.Register(common.IsLikeReply{})
+  gob.Register(common.FollowUserArgs{})
+  gob.Register(common.FollowUserReply{})
+  gob.Register(common.FollowListArgs{})
+  gob.Register(common.FollowListReply{})
+  serverNum := 1
+  clients := make([]*rpc.Client, serverNum)
+  pbservers = make([]*PBServer, serverNum)
+  for i := 0; i < serverNum; i++ {
+    _,pbs :=  createServer(clients, i)
+    pbservers[i] = pbs
   }
+  client, err := rpc.Dial("tcp", "localhost:8081")
+  if err != nil {
+    log.Fatal("dialing:", err)
+  }
+  vp = vrproxy.Make(client)
+  arith = &Arith{client: client}
+}
 
-  argu := &GetServerNumberArgs{}
-	reply := &GetServerNumberReply{}
-	clients[0].Call("PBServer.GetServerNumber", argu, reply)
-  assertEqual(t, reply.Number, 0)
-  clients[1].Call("PBServer.GetServerNumber", argu, reply)
-  assertEqual(t, reply.Number, 1)
-  clients[2].Call("PBServer.GetServerNumber", argu, reply)
-  assertEqual(t, reply.Number, 2)
+func TestLogin(t *testing.T){
+  // store := sessions.NewCookieStore([]byte("something-very-secret"))
+  user := make(map[string]User)
+  user["user"] = User{"user", "password"}
+  data := url.Values{}
+  data.Set("user", "user")
+  data.Add("password", "password")
 
+  args := common.SignArgs{"user", "password"}
+  vrArgu := &common.VrArgu{}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.Signup"
+  vrReply := &common.VrReply{}
+  vp.CallVr(vrArgu, vrReply)
+
+  r := httptest.NewRequest("GET", urlString+"/User/Login?"+data.Encode(), nil)
+  w := httptest.NewRecorder()
+  login(w,r)
+
+  resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+  ret := string(body)
+  if ret=="false"{
+    t.Fatalf("TestLogin2 fail")
+  }
+  fmt.Printf("............ TestLogin Passed ********* !!\n")
+}
+
+// func TestIsLike(t *testing.T) {
+//   like := make(map[string]map[int]bool)
+//   test_case1 := []string{"usera","userb","userb"}
+//   test_case2 := []int{1,0,1}
+//   temp := make(map[int]bool)
+//   temp[1] = true
+//   like["usera"] = temp
+//   temp[0] = true
+//   like["userb"] = temp
+//
+//
+//
+//   for i := 0; i < len(test_case1); i++ {
+//     ok := isLike(test_case1[i],test_case2[i])
+//     if(!ok) {
+//       t.Fatalf("TestLike fail")
+//       fmt.Printf("Liked Failed\n")
+//     }
+//   }
+//   fmt.Printf("............ TestMessageisLiked Passed ********* !!\n")
+// }
+
+
+func TestSendMsgHttp(t *testing.T){
+  handler := func(w http.ResponseWriter, r *http.Request) {
+    http.Error(w, "............ SendMsgResponse Passed ********* !!", http.StatusInternalServerError)
+  }
+  req, err := http.NewRequest("POST", urlString + "/SendMsg", nil)
+  if err != nil {
+    log.Fatal(err)
+  }
+  w := httptest.NewRecorder()
+  handler(w, req)
+  fmt.Printf("%s", w.Body.String())
+}
+
+
+func TestServer(t *testing.T) {
+  ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+      fmt.Fprintln(w, "............ TestGetMessageServer Passed ********* !!")
+  }))
+  defer ts.Close()
+  res, err := http.Get(ts.URL)
+  if err != nil {
+    log.Fatal(err)
+  }
+  greeting, err := ioutil.ReadAll(res.Body)
+  res.Body.Close()
+  if err != nil {
+    log.Fatal(err)
+  }
+  fmt.Printf("%s", greeting)
+}
+
+func TestGetMsg(t *testing.T){
+
+
+  // user := make(map[string]User)
+  // user["user"] = User{"user", "password"}
+
+  // args := common.SignArgs{"user", "password"}
+  // vrArgu := &common.VrArgu{}
+  // vrArgu.Argu = args
+  // vrArgu.Op = "DB.GetMsg"
+  // vrReply := &common.VrReply{}
+  // vp.CallVr(vrArgu, vrReply)
+
+  data := url.Values{}
+  data.Set("index", "-2")
+
+  // log.Println("pbservers[0].db",pbservers[0].db)
+  // data.Add("password", "password")
+  pbservers[0].db.msg = []common.Msg{
+			  {
+          ID  : 0,
+          Value : "I like debuging :)",
+          User  : "usera",
+          LikeNum  : 2,
+          IsLiked : false,
+			  },
+        {
+          ID  : 1,
+          Value : "I literally like debuging :)",
+          User  : "userb",
+          LikeNum  : 3,
+          IsLiked : false,
+			  },
+        {
+          ID  : 2,
+          Value : "I really like debuging :)",
+          User  : "userc",
+          LikeNum  : 3,
+          IsLiked : false,
+			  }}
+
+      var latestmsg = []common.Msg{
+          {
+            ID  : 2,
+            Value : "I really like debuging :)",
+            User  : "userc",
+            LikeNum  : 3,
+            IsLiked : false,
+          },
+
+              {
+                ID  : 1,
+                Value : "I literally like debuging :)",
+                User  : "userb",
+                LikeNum  : 3,
+                IsLiked : false,
+      			  },
+              {
+                ID  : 0,
+                Value : "I like debuging :)",
+                User  : "usera",
+                LikeNum  : 2,
+                IsLiked : false,
+      			  },
+              }
+  jsonval, _ := json.Marshal(latestmsg)
+
+  r := httptest.NewRequest("GET", urlString+"/GetMsg?"+data.Encode(), nil)
+  w := httptest.NewRecorder()
+  session, _ := store.Get(r, "user_session")
+  // Set some session values.
+  //session.Values["authenticated"] = true
+  var temp interface{} = "user"
+  session.Values[temp] = "usera"
+  // Save it before we write to the response/return from the handler.
+  session.Save(r, w)
+
+  getMsg(w,r)
+
+  resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+  ret := string(body)
+  log.Println("ret1", ret)
+  log.Println("ret2", string(jsonval))
+  if ret != string(jsonval){
+    t.Fatalf("TestGetMsg fail")
+  }
+  fmt.Printf("............ TestGetMsgJsonResponse Passed ********* !!\n")
 }

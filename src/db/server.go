@@ -24,7 +24,7 @@ var vp *vrproxy.VrProxy
 
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
-func createServer(clients []*rpc.Client, serverIndex int) *rpc.Client{
+func createServer(clients []*rpc.Client, serverIndex int) (*rpc.Client, *PBServer){
   ps := Make(clients, serverIndex, 0)
   server := rpc.NewServer()
   server.Register(ps)
@@ -43,7 +43,7 @@ func createServer(clients []*rpc.Client, serverIndex int) *rpc.Client{
 
   clients[serverIndex] = client
 
-  return client
+  return client, ps
 }
 
 func main() {
@@ -177,6 +177,9 @@ func login(w http.ResponseWriter, r *http.Request) {
     name := r.FormValue("user")
     password := r.FormValue("password")
 
+    // log.Println("login name:", name)
+    // log.Println("login password:", password)
+
     ret := arith._login(name, password)
     if ret == "true" {
       session, _ := store.Get(r, "user_session")
@@ -192,6 +195,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func(t *Arith) _login(name string, password string) string{
+    // log.Println("login name:", name)
+    // log.Println("login password:", password)
     args := &common.LogArgs{name}
     //var reply common.LogReply
 
@@ -208,7 +213,7 @@ func(t *Arith) _login(name string, password string) string{
       log.Fatal("convert error in login")
     }
 
-    log.Println("client", t.client)
+    // log.Println("client", t.client)
     if(reply.Success && reply.Password == password){
       log.Println(reply.Password)
       return "true"
