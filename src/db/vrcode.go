@@ -580,9 +580,12 @@ func (srv *PBServer) StartView(args *StartViewArgs, reply *StartViewReply) error
 		//changes its status to be NORMAL
 		srv.log = args.Log
 		srv.currentView = args.View
-		//must set lastnormalview, other wise will return error exit status 1
 		srv.lastNormalView = args.View
 		srv.status = NORMAL
+		for i:=srv.commitIndex+1; i<=len(srv.log) - 1; i++{
+			argu, _ := srv.log[i].(common.VrArgu)
+			srv.commitDB(argu)
+		}
 		srv.commitIndex = len(srv.log) - 1
 		// log.Println("StartView3 from:", srv.currentView)
 	}

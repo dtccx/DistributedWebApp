@@ -714,3 +714,23 @@ func TestRecovery(t *testing.T){
   assertEqualWithMsg(t,ConfirmReplicateRegistrationToServer(nw,"name1",1),true, "fail to recover registration1")
   assertEqualWithMsg(t,ConfirmReplicateRegistrationToServer(nw,"name2",1),true, "fail to recover registration2")
 }
+
+func TestEverything(t *testing.T){
+  startPort := 18000
+  serverNum := 3
+  nw := SetupTestNetwork(serverNum, startPort,global_dumpClient)
+  vp := vrproxy.CreateVrProxyV2(startPort, serverNum)
+  RunRegisterRPC(vp, "name1")
+  RunRegisterRPC(vp, "name2")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration1")
+  nw.Disconnect(0)
+  vp = vrproxy.MakeVrProxy(global_dumpClient, []string{global_dumpClientAddress,"localhost:18001","localhost:18002"}, 0)
+  RunRegisterRPC(vp, "name3")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name2"), true,"fail to replicate registration2")
+  nw.Connect(0)
+  vp = vrproxy.MakeVrProxy(nw.clients[1], []string{"localhost:18000","localhost:18001","localhost:18002"}, 1)
+  RunRegisterRPC(vp, "name4")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name3"), true,"fail to replicate registration2")
+  time.Sleep(1000*time.Millisecond)
+  assertEqualWithMsg(t, ConfirmReplicateRegistrationToServer(nw,"name3",0),true, "fail to recover registration")
+}
