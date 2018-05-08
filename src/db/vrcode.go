@@ -11,6 +11,7 @@ import (
 	// "os"
 	// "os/signal"
 	"errors"
+	// "fmt"
 	// "net/http"
 )
 
@@ -162,13 +163,14 @@ func Make(peers []*rpc.Client, me int, startingView int) *PBServer {
 }
 
 func (srv *PBServer) DealPrimay(args common.DealPrimayArgs, reply *common.DealPrimayReply) error {
-	if (srv.me != GetPrimary(srv.currentView, len(srv.peers))){
-		reply.OK = false
-	} else {
+	if (srv.me == GetPrimary(srv.currentView, len(srv.peers)) && srv.status==NORMAL){
 		reply.OK = true
+	} else {
+		reply.OK = false
 	}
 	return nil
 }
+
 
 func (srv *PBServer) commitDB(args common.VrArgu) interface{} {
 	op := args.Op
@@ -254,6 +256,7 @@ func (srv *PBServer) commitDB(args common.VrArgu) interface{} {
 }
 
 func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
+	log.Println("Start run")
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
@@ -274,7 +277,7 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 }
 
 func (srv *PBServer) resendPrepare(command interface{}, index int, currentView int, commitIndex int) interface{}{
-	log.Println("start resendPrepare")
+	// log.Println("start resendPrepare")
 	replys := make([]*PrepareReply, len(srv.peers))
 	for i, _ := range srv.peers {
 		if i == srv.me {
@@ -308,8 +311,8 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 		}
 	}
 	//log.Printf("[%d] successful number", suc_num)
-	log.Println("suc_num:", suc_num)
-	log.Println("len(srv.peers)", len(srv.peers))
+	// log.Println("suc_num:", suc_num)
+	// log.Println("len(srv.peers)", len(srv.peers))
 	if suc_num >= (len(srv.peers) - 1) / 2 {
 		for {
 			if srv.commitIndex + 1 == index {
@@ -320,7 +323,7 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 		}
 	} else {
 			//if not committed, resend prepare until index commmit
-			log.Println("resendPrepare call itself")
+			// log.Println("resendPrepare call itself")
 			return srv.resendPrepare(command, index, currentView, commitIndex)
 	}
 
@@ -328,21 +331,22 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 }
 
 func (srv *PBServer) sendPrepare(server int, args *PrepareArgs, reply *PrepareReply) bool {
-	log.Println("sendPrepare:", srv.peers[server])
-	log.Println("sendPrepare num:", len(srv.peers))
+	// log.Println("sendPrepare:", srv.peers[server])
+	// log.Println("sendPrepare num:", len(srv.peers))
 	prepareErr := srv.peers[server].Call("PBServer.Prepare", args, reply)
-	log.Println("prepareErr:",prepareErr)
+	// log.Println("prepareErr:",prepareErr)
 	return prepareErr==nil
 }
 
 // Prepare is the RPC handler for the Prepare RPC
 func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 	// Your code here
-	log.Println("xxl Prepare start")
+	log.Println("start prepare from:", srv.me)
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
 	if srv.currentView == args.View && len(srv.log) == args.Index {
+		log.Println("prepare1 from:", srv.me)
 		log.Println("Prepare1")
 		srv.log = append(srv.log, args.Entry)
 		reply.View = srv.currentView
@@ -360,14 +364,15 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 		srv.lastNormalView = srv.currentView
 		return nil
 	}	else if srv.currentView == args.View && len(srv.log) > args.Index {
+		log.Println("prepare2 from:", srv.me)
 		//log's capaticy is bigger, so should return true, but not append,and not recover
 		log.Println("Prepare2")
 		reply.View = args.View
 		reply.Success = true
 		return nil
 	} else {
+		log.Println("prepare3 from:", srv.me)
 		//reply.View = srv.currentView
-		log.Println("Prepare3")
 		reply.Success = false
 		//no way to recover
 		if(srv.currentView > args.View) {
@@ -420,8 +425,13 @@ func (srv *PBServer) Recovery(args *RecoveryArgs, reply *RecoveryReply) {
 
 }
 
+func (srv *PBServer) VrViewChange(args *common.VrViewChangeArgu, reply *common.VrViewChangeReply) error{
+	srv.PromptViewChange(args.View)
+	return nil
+}
 
 func (srv *PBServer) PromptViewChange(newView int) {
+	log.Println("PromptViewChange from:", srv.me)
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 	newPrimary := GetPrimary(newView, len(srv.peers))
@@ -437,9 +447,14 @@ func (srv *PBServer) PromptViewChange(newView int) {
 	vcReplyChan := make(chan *ViewChangeReply, len(srv.peers))
 	// send ViewChange to all servers including myself
 	for i := 0; i < len(srv.peers); i++ {
+		log.Println("middle1 PromptViewChange from:", srv.me)
 		go func(server int) {
 			var reply ViewChangeReply
-			ok := srv.peers[server].Call("PBServer.ViewChange", vcArgs, &reply)==nil
+			vcError := srv.peers[server].Call("PBServer.ViewChange", vcArgs, &reply)
+			if(vcError!=nil){
+				log.Println("vcError",vcError)
+			}
+			ok := vcError==nil
 			// fmt.Printf("node-%d (nReplies %d) received reply ok=%v reply=%v\n", srv.me, nReplies, ok, r.reply)
 			if ok {
 				vcReplyChan <- &reply
@@ -456,8 +471,11 @@ func (srv *PBServer) PromptViewChange(newView int) {
 		var nReplies int
 		majority := len(srv.peers)/2 + 1
 		for r := range vcReplyChan {
+			// log.Println("middle2 PromptViewChange from:", srv.me)
+			// log.Println("middle2.1 PromptViewChange from:", r)
 			nReplies++
 			if r != nil && r.Success {
+				// log.Println("middle3 PromptViewChange from:", srv.me)
 				successReplies = append(successReplies, r)
 			}
 			if nReplies == len(srv.peers) || len(successReplies) == majority {
@@ -472,10 +490,13 @@ func (srv *PBServer) PromptViewChange(newView int) {
 			View: vcArgs.View,
 			Log:  log,
 		}
+
+		// fmt.Println("middle4 PromptViewChange from:", srv.me)
 		// send StartView to all servers including myself
 		for i := 0; i < len(srv.peers); i++ {
 			var reply StartViewReply
 			go func(server int) {
+				// fmt.Println("middle4 PromptViewChange to:", server)
 				// fmt.Printf("node-%d sending StartView v=%d to node-%d\n", srv.me, svArgs.View, server)
 				srv.peers[server].Call("PBServer.StartView", svArgs, &reply)
 			}(i)
@@ -514,7 +535,7 @@ func (srv *PBServer) determineNewViewLog(successReplies []*ViewChangeReply) (
 }
 
 // ViewChange is the RPC handler to process ViewChange RPC.
-func (srv *PBServer) ViewChange(args *ViewChangeArgs, reply *ViewChangeReply) {
+func (srv *PBServer) ViewChange(args *ViewChangeArgs, reply *ViewChangeReply) error {
 	// Your code here
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -528,11 +549,12 @@ func (srv *PBServer) ViewChange(args *ViewChangeArgs, reply *ViewChangeReply) {
 	} else {
 		reply.Success = false
 	}
-
+	return nil
 }
 
 // StartView is the RPC handler to process StartView RPC.
 func (srv *PBServer) StartView(args *StartViewArgs, reply *StartViewReply) error {
+	// log.Println("StartView from:", srv.me)
 	// Your code here
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -541,6 +563,7 @@ func (srv *PBServer) StartView(args *StartViewArgs, reply *StartViewReply) error
 	if srv.currentView > args.View {
 		return nil
 	} else {
+		// log.Println("StartView2 from:", srv.me)
 		//sets the new-view as indicated in the message
 		//changes its status to be NORMAL
 		srv.log = args.Log
@@ -549,69 +572,7 @@ func (srv *PBServer) StartView(args *StartViewArgs, reply *StartViewReply) error
 		srv.lastNormalView = args.View
 		srv.status = NORMAL
 		srv.commitIndex = len(srv.log) - 1
+		// log.Println("StartView3 from:", srv.currentView)
 	}
 	return nil
 }
-
-// type GetServerNumberArgs struct{
-//
-// }
-//
-// type GetServerNumberReply struct{
-// 	Number int
-// }
-//
-// func (srv *PBServer) GetServerNumber(args *GetServerNumberArgs, reply *GetServerNumberReply) error{
-// 	reply.Number = srv.me
-// 	// log.Println("haha",srv.me)
-// 	return nil
-// }
-//
-//
-// func main(){
-// 	clients := make([]*rpc.Client, 1)
-// 	// srv_num := 3
-// 	// ports := []string{":8082",":8083",":8084"}
-//
-//
-//
-//
-//
-// 	port := flag.String("port", ":8080", "http listen port")
-// 	num := flag.Int("num", 777, "client's number")
-// 	flag.Parse()
-//
-// 	if(*port == ":8080" || *num == 777) {
-// 		log.Print("! error: Please enter the parameter of port & num(client)")
-// 		return
-// 	}
-// 	log.Print("port", *port)
-//
-// 	peer := Make(clients, *num, 0)
-// 	server := rpc.NewServer()
-// 	server.Register(peer)
-// 	l,listenError := net.Listen("tcp", *port)
-// 	if(listenError!=nil){
-// 		log.Println(listenError)
-// 	}
-// 	go server.Accept(l)
-//
-// 	client, err := rpc.Dial("tcp", *port)
-// 	clients[*num] = client
-// 	if(err!=nil){
-// 		log.Println(err)
-// 	}
-// 	log.Println(client==nil)
-//
-// 	signalChan := make(chan os.Signal, 1)
-// 	cleanupDone := make(chan bool)
-// 	signal.Notify(signalChan, os.Interrupt)
-// 	go func() {
-//     for _ = range signalChan {
-//         log.Println("\nReceived an interrupt, stopping services...\n")
-//         cleanupDone <- true
-//     }
-// 	}()
-// 	<-cleanupDone
-//
-// }

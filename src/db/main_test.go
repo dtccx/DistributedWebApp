@@ -545,6 +545,9 @@ type Network struct{
   oriClients []*rpc.Client
 }
 
+var global_dumpClient *rpc.Client
+var global_dumpClientAddress string
+
 func CreateNetwork(clients []*rpc.Client, dumpClients []*rpc.Client,pbservers []*PBServer) *Network {
   nw := new(Network)
   nw.clients = clients
@@ -566,8 +569,6 @@ func (nw *Network) Connect(serverIndex int){
   nw.clients[serverIndex] = nw.oriClients[serverIndex]
   nw.pbservers[serverIndex].peers = nw.clients
 }
-
-var global_dumpClient *rpc.Client
 
 func SetupTestNetwork(serverNum int, startPort int, dumpClient *rpc.Client) *Network{
   clients := make([]*rpc.Client, serverNum)
@@ -598,6 +599,7 @@ func TestSetupDumpClient(t *testing.T){
     log.Fatal("dumpClientErr:", dumpClientErr)
   }
   global_dumpClient = dumpClient
+  global_dumpClientAddress = "localhost:10000"
 }
 
 func TestInitNetwork(t *testing.T){
@@ -658,7 +660,19 @@ func ConfirmReplicateRegistration(nw *Network, username string) bool{
 func TestReplication(t *testing.T){
   nw := SetupTestNetwork(3, 14000,global_dumpClient)
   vp := vrproxy.CreateVrProxy(nw.clients[0], 14000, 3)
-  assertEqual(t, nw.pbservers[0].commitIndex, 0)
+  // assertEqual(t, nw.pbservers[0].commitIndex, 0)
+  RunRegisterRPC(vp, "name1")
+  RunRegisterRPC(vp, "name2")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration")
+}
+
+func TestPrimaryDown(t *testing.T){
+  startPort := 15000
+  serverNum := 3
+  nw := SetupTestNetwork(serverNum, startPort,global_dumpClient)
+  vp := vrproxy.CreateVrProxyV2(startPort, serverNum)
+  nw.Disconnect(0)
+  vp = vrproxy.MakeVrProxy(global_dumpClient, []string{global_dumpClientAddress,"localhost:15001","localhost:15002"}, 0)
   RunRegisterRPC(vp, "name1")
   RunRegisterRPC(vp, "name2")
   assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration")

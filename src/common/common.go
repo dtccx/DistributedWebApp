@@ -126,3 +126,11 @@ type VrArgu struct{
 type VrReply struct{
   Reply interface{}
 }
+
+type VrViewChangeArgu struct{
+  View  int
+}
+
+type VrViewChangeReply struct{
+
+}
