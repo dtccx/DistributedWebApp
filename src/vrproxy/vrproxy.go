@@ -5,10 +5,12 @@ import (
   "net/rpc"
   // "encoding/gob"
   "log"
+  "strconv"
 )
 
 type VrProxy struct{
   client *rpc.Client
+  addresses []string
 }
 
 func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
@@ -19,8 +21,8 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
     //If a client doesn’t receive a timely response to a request,
     //it re-sends the request to all replicas.
     //This way if the group has moved to a later view, its message will reach the new primary.
-    for i := 0; i < len(common.Address); i++ {
-      client_temp, err := rpc.Dial("tcp", "localhost" + common.Address[i])
+    for i := 0; i < len(vp.addresses); i++ {
+      client_temp, err := rpc.Dial("tcp", "localhost" + vp.addresses[i])
       if(err != nil) {
         break
       }
@@ -28,7 +30,7 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
       var argu2 common.DealPrimayArgs
       client_temp.Call("PBServer.DealPrimay", argu2, reply2)
       if(reply2.OK) {
-        vp = Make(client_temp)
+        vp = CreateVrProxy(client_temp, 8081,3)
         vp.CallVr(argu, reply)
       }
     }
@@ -43,8 +45,13 @@ func (vp *VrProxy) CallVr(argu *common.VrArgu, reply *common.VrReply) error {
 
 
 
-func Make(client *rpc.Client) *VrProxy{
+func CreateVrProxy(client *rpc.Client, startPort int, clientNumber int) *VrProxy{
   vp := new(VrProxy)
+  addresses := make([]string, clientNumber)
+  for i:=0; i<clientNumber; i++{
+    addresses[i] = ":" + strconv.Itoa(startPort+i)
+  }
   vp.client = client
+  vp.addresses = addresses
   return vp
 }

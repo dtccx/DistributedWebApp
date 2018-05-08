@@ -24,11 +24,35 @@ var vp *vrproxy.VrProxy
 
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
+//this function is deprecated don use or maintain it
 func createServer(clients []*rpc.Client, serverIndex int) (*rpc.Client, *PBServer){
   ps := Make(clients, serverIndex, 0)
   server := rpc.NewServer()
   server.Register(ps)
   port := ":"+strconv.Itoa(8081+serverIndex)
+  l,listenError := net.Listen("tcp", port)
+  if(listenError!=nil){
+    log.Println(listenError)
+  }
+  go server.Accept(l)
+  client, err := rpc.Dial("tcp", port)
+  clients[serverIndex] = client
+  if(err!=nil){
+    log.Println(err)
+  }
+  log.Println(client==nil)
+
+  clients[serverIndex] = client
+
+  return client, ps
+}
+
+
+func createServerV2(clients []*rpc.Client, serverIndex int, startingPort int) (*rpc.Client, *PBServer){
+  ps := Make(clients, serverIndex, 0)
+  server := rpc.NewServer()
+  server.Register(ps)
+  port := ":"+strconv.Itoa(startingPort+serverIndex)
   l,listenError := net.Listen("tcp", port)
   if(listenError!=nil){
     log.Println(listenError)
@@ -88,7 +112,7 @@ func main() {
   if err != nil {
     log.Fatal("dialing:", err)
   }
-  vp = vrproxy.Make(client)
+  vp = vrproxy.CreateVrProxy(client, 8081, 3)
 
 
 

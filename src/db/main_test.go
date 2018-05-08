@@ -31,6 +31,10 @@ func assertEqual(t *testing.T, a interface{}, b interface{}) {
   _assertEqual(t,a,b,"")
 }
 
+func assertEqualWithMsg(t *testing.T, a interface{}, b interface{}, msg string){
+  _assertEqual(t,a,b,msg)
+}
+
 type Test_DB struct{
   client *rpc.Client
 }
@@ -355,7 +359,7 @@ func TestIntegrationInit(t *testing.T){
   if err != nil {
     log.Fatal("dialing:", err)
   }
-  vp = vrproxy.Make(client)
+  vp = vrproxy.CreateVrProxy(client, 8081, 1)
   arith = &Arith{client: client}
 }
 
@@ -531,4 +535,120 @@ func TestGetMsg(t *testing.T){
     t.Fatalf("TestGetMsg fail")
   }
   fmt.Printf("............ TestGetMsgJsonResponse Passed ********* !!\n")
+}
+
+
+type Network struct{
+  clients []*rpc.Client
+  dumpClients []*rpc.Client
+  pbservers []*PBServer
+  oriClients []*rpc.Client
+}
+
+func CreateNetwork(clients []*rpc.Client, dumpClients []*rpc.Client,pbservers []*PBServer) *Network {
+  nw := new(Network)
+  nw.clients = clients
+  nw.dumpClients = dumpClients
+  nw.pbservers = pbservers
+  nw.oriClients = make([]*rpc.Client, len(clients))
+  for i := 0; i < len(clients); i++ {
+     nw.oriClients[i] = clients[i]
+  }
+  return nw
+}
+
+func (nw *Network) Disconnect(serverIndex int){
+  nw.clients[serverIndex] = nw.dumpClients[0]
+  nw.pbservers[serverIndex].peers = nw.dumpClients
+}
+
+func (nw *Network) Connect(serverIndex int){
+  nw.clients[serverIndex] = nw.oriClients[serverIndex]
+  nw.pbservers[serverIndex].peers = nw.clients
+}
+
+var global_dumpClient *rpc.Client
+
+func SetupTestNetwork(serverNum int, startPort int, dumpClient *rpc.Client) *Network{
+  clients := make([]*rpc.Client, serverNum)
+  pbservers := make([]*PBServer, serverNum)
+  for i := 0; i < serverNum; i++ {
+     client,pbserver := createServerV2(clients, i, startPort)
+     clients[i] = client
+     pbservers[i] = pbserver
+  }
+  dumpClients := make([]*rpc.Client, serverNum)
+  for i := 0; i < serverNum; i++ {
+     dumpClients[i] = dumpClient
+  }
+  return CreateNetwork(clients, dumpClients, pbservers)
+}
+
+func TestSetupDumpClient(t *testing.T){
+  dumpServer := rpc.NewServer()
+  dumpServer.Register(1)
+  dumpPort := ":10000"
+  dumpListener, dumpListenerErr:= net.Listen("tcp", dumpPort)
+  if(dumpListenerErr!=nil){
+    log.Fatal("dumpListenerErr:", dumpListenerErr)
+  }
+  go dumpServer.Accept(dumpListener)
+  dumpClient, dumpClientErr := rpc.Dial("tcp", ":10000")
+  if(dumpClientErr!=nil){
+    log.Fatal("dumpClientErr:", dumpClientErr)
+  }
+  global_dumpClient = dumpClient
+}
+
+func TestInitNetwork(t *testing.T){
+  nw := SetupTestNetwork(3, 11000,global_dumpClient)
+  assertEqual(t, nw!=nil, true)
+  assertEqual(t, len(nw.clients)==3, true)
+  assertEqual(t, len(nw.dumpClients)==3, true)
+  assertEqual(t, len(nw.pbservers)==3, true)
+}
+
+
+func TestNetworkDisconnect(t *testing.T){
+  nw := SetupTestNetwork(1, 12000,global_dumpClient)
+  reply := &common.DealPrimayReply{}
+  argu := common.DealPrimayArgs{}
+  err := nw.clients[0].Call("PBServer.DealPrimay", argu, reply)
+  assertEqual(t, err==nil, true)
+  nw.Disconnect(0)
+  err = nw.clients[0].Call("PBServer.DealPrimay", argu, reply)
+  assertEqual(t, err!=nil, true)
+}
+
+func TestNetworkConnect(t *testing.T){
+  nw := SetupTestNetwork(1, 13000,global_dumpClient)
+  reply := &common.DealPrimayReply{}
+  argu := common.DealPrimayArgs{}
+  err := nw.clients[0].Call("PBServer.DealPrimay", argu, reply)
+  assertEqual(t, err==nil, true)
+  nw.Disconnect(0)
+  err = nw.clients[0].Call("PBServer.DealPrimay", argu, reply)
+  assertEqual(t, err!=nil, true)
+  nw.Connect(0)
+  err = nw.clients[0].Call("PBServer.DealPrimay", argu, reply)
+  assertEqual(t, err==nil, true)
+}
+
+
+func RunLoginRPC(vp *vrproxy.VrProxy, username string){
+  vrArgu := &common.VrArgu{}
+  args := common.SignArgs{username, "password"}
+  vrArgu.Argu = args
+  vrArgu.Op = "DB.Signup"
+  vrReply := &common.VrReply{}
+  vp.CallVr(vrArgu, vrReply)
+}
+
+func TestViewChange(t *testing.T){
+  nw := SetupTestNetwork(3, 14000,global_dumpClient)
+  vp := vrproxy.CreateVrProxy(nw.clients[0], 14000, 3)
+  RunLoginRPC(vp, "name1")
+  assertEqualWithMsg(t, nw.pbservers[0].db.user["name1"].Name, "name1","TestViewChange1")
+  assertEqualWithMsg(t, nw.pbservers[1].db.user["name1"].Name, "name1","TestViewChange2")
+  assertEqualWithMsg(t, nw.pbservers[2].db.user["name1"].Name, "name1","TestViewChange3")
 }
