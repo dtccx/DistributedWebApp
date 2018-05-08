@@ -170,6 +170,89 @@ func (srv *PBServer) DealPrimay(args common.DealPrimayArgs, reply *common.DealPr
 	return nil
 }
 
+func (srv *PBServer) commitDB(args common.VrArgu) interface{} {
+	op := args.Op
+	switch op{
+	case "DB.Login":
+		temp,  _ := args.Argu.(common.LogArgs)
+		var reply2 common.LogReply
+		srv.db.Login(&temp, &reply2)
+		return reply2
+	case "DB.Signup":
+		temp, _ := args.Argu.(common.SignArgs)
+		log.Print(temp)
+		var reply2 common.SignReply
+		srv.db.Signup(&temp, &reply2)
+		log.Print("sign")
+		return reply2
+	case "DB.DelUser":
+		temp, _ := args.Argu.(common.DelUserArgs)
+		log.Print(temp)
+		var reply2 common.DelUserReply
+		srv.db.DelUser(&temp, &reply2)
+		log.Print("delete user")
+		return reply2
+	case "DB.SendMsg":
+		temp, _ := args.Argu.(common.SendMsgArgs)
+		log.Print(temp)
+		var reply2 common.SendMsgReply
+		srv.db.SendMsg(&temp, &reply2)
+		log.Print("snedmsg")
+		return reply2
+	case "DB.GetMsg":
+		temp, _ := args.Argu.(common.GetMsgArgs)
+		log.Print(temp)
+		var reply2 common.GetMsgReply
+		srv.db.GetMsg(&temp, &reply2)
+		log.Print("getmsg")
+		return reply2
+	case "DB.LikeMsg":
+		temp, _ := args.Argu.(common.LikeArgs)
+		log.Print(temp)
+		var reply2 common.LikeReply
+		srv.db.LikeMsg(&temp, &reply2)
+		log.Print("like")
+		return reply2
+	case "DB.UnLikeMsg":
+		temp, _ := args.Argu.(common.UnLikeArgs)
+		log.Print(temp)
+		var reply2 common.UnLikeReply
+		srv.db.UnLikeMsg(&temp, &reply2)
+		log.Print("unlike")
+		return reply2
+	case "DB.IsLike":
+		temp, _ := args.Argu.(common.IsLikeArgs)
+		log.Print(temp)
+		var reply2 common.IsLikeReply
+		srv.db.IsLike(&temp, &reply2)
+		log.Print("IsLike")
+		return reply2
+	case "DB.FollowList":
+		temp, _ := args.Argu.(common.FollowListArgs)
+		log.Print(temp)
+		var reply2 common.FollowListReply
+		srv.db.FollowList(&temp, &reply2)
+		log.Print("FollowList")
+		return reply2
+	case "DB.FollowUser":
+		temp, _ := args.Argu.(common.FollowUserArgs)
+		log.Print(temp)
+		var reply2 common.FollowUserReply
+		srv.db.FollowUser(&temp, &reply2)
+		log.Print("FollowUser")
+		return reply2
+	case "DB.LikeList":
+		temp, _ := args.Argu.(common.LikeListArgs)
+		log.Print(temp)
+		var reply2 common.LikeListReply
+		srv.db.LikeList(&temp, &reply2)
+		log.Print("LikeList:", reply2)
+		return reply2
+	}
+
+	return 0
+}
+
 func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
@@ -185,97 +268,12 @@ func (srv *PBServer) Start(args common.VrArgu, reply *common.VrReply) error {
 	command := args
 	//append the command in its log
 	srv.log = append(srv.log, command)
-	srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
-
-	//write -----> use
-	op := args.Op
-	switch op{
-	case "DB.Login":
-		//var temp *common.LogArgs
-		temp,  _ := args.Argu.(common.LogArgs)
-		var reply2 common.LogReply
-		srv.db.Login(&temp, &reply2)
-		reply.Reply = reply2
-	case "DB.Signup":
-		temp, _ := args.Argu.(common.SignArgs)
-		log.Print(temp)
-		var reply2 common.SignReply
-		srv.db.Signup(&temp, &reply2)
-		log.Print("sign")
-		reply.Reply = reply2
-	case "DB.DelUser":
-		temp, _ := args.Argu.(common.DelUserArgs)
-		log.Print(temp)
-		var reply2 common.DelUserReply
-		srv.db.DelUser(&temp, &reply2)
-		log.Print("delete user")
-		reply.Reply = reply2
-	case "DB.SendMsg":
-		temp, _ := args.Argu.(common.SendMsgArgs)
-		log.Print(temp)
-		var reply2 common.SendMsgReply
-		srv.db.SendMsg(&temp, &reply2)
-		log.Print("snedmsg")
-		reply.Reply = reply2
-	case "DB.GetMsg":
-		temp, _ := args.Argu.(common.GetMsgArgs)
-		log.Print(temp)
-		var reply2 common.GetMsgReply
-		srv.db.GetMsg(&temp, &reply2)
-		log.Print("getmsg")
-		reply.Reply = reply2
-	case "DB.LikeMsg":
-		temp, _ := args.Argu.(common.LikeArgs)
-		log.Print(temp)
-		var reply2 common.LikeReply
-		srv.db.LikeMsg(&temp, &reply2)
-		log.Print("like")
-		reply.Reply = reply2
-	case "DB.UnLikeMsg":
-		temp, _ := args.Argu.(common.UnLikeArgs)
-		log.Print(temp)
-		var reply2 common.UnLikeReply
-		srv.db.UnLikeMsg(&temp, &reply2)
-		log.Print("unlike")
-		reply.Reply = reply2
-	case "DB.IsLike":
-		temp, _ := args.Argu.(common.IsLikeArgs)
-		log.Print(temp)
-		var reply2 common.IsLikeReply
-		srv.db.IsLike(&temp, &reply2)
-		log.Print("IsLike")
-		reply.Reply = reply2
-	case "DB.FollowList":
-		temp, _ := args.Argu.(common.FollowListArgs)
-		log.Print(temp)
-		var reply2 common.FollowListReply
-		srv.db.FollowList(&temp, &reply2)
-		log.Print("FollowList")
-		reply.Reply = reply2
-	case "DB.FollowUser":
-		temp, _ := args.Argu.(common.FollowUserArgs)
-		log.Print(temp)
-		var reply2 common.FollowUserReply
-		srv.db.FollowUser(&temp, &reply2)
-		log.Print("FollowUser")
-		reply.Reply = reply2
-	case "DB.LikeList":
-		temp, _ := args.Argu.(common.LikeListArgs)
-		log.Print(temp)
-		var reply2 common.LikeListReply
-		srv.db.LikeList(&temp, &reply2)
-		log.Print("LikeList:", reply2)
-		reply.Reply = reply2
-	}
-
-
-
-	log.Println("return")
-//	log.Println(srv.IsCommitted(index))
+	reply.Reply = srv.resendPrepare(command, len(srv.log) - 1, srv.currentView, srv.commitIndex)
+	log.Println("Start return")
 	return nil
 }
 
-func (srv *PBServer) resendPrepare(command interface{}, index int, currentView int, commitIndex int) {
+func (srv *PBServer) resendPrepare(command interface{}, index int, currentView int, commitIndex int) interface{}{
 	log.Println("start resendPrepare")
 	replys := make([]*PrepareReply, len(srv.peers))
 	for i, _ := range srv.peers {
@@ -314,21 +312,19 @@ func (srv *PBServer) resendPrepare(command interface{}, index int, currentView i
 	log.Println("len(srv.peers)", len(srv.peers))
 	if suc_num >= (len(srv.peers) - 1) / 2 {
 		for {
-			// srv.mu.Lock()
 			if srv.commitIndex + 1 == index {
 				srv.commitIndex += 1
-				// srv.mu.Unlock()
-				break
+				argu, _ := command.(common.VrArgu)
+				return srv.commitDB(argu)
 			}
-			// srv.mu.Unlock()
 		}
 	} else {
 			//if not committed, resend prepare until index commmit
 			log.Println("resendPrepare call itself")
-			go srv.resendPrepare(command, index, currentView, commitIndex)
+			return srv.resendPrepare(command, index, currentView, commitIndex)
 	}
 
-	log.Println("end resendPrepare")
+	return 1
 }
 
 func (srv *PBServer) sendPrepare(server int, args *PrepareArgs, reply *PrepareReply) bool {
@@ -342,6 +338,7 @@ func (srv *PBServer) sendPrepare(server int, args *PrepareArgs, reply *PrepareRe
 // Prepare is the RPC handler for the Prepare RPC
 func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 	// Your code here
+	log.Println("xxl Prepare start")
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
@@ -350,7 +347,16 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 		srv.log = append(srv.log, args.Entry)
 		reply.View = srv.currentView
 		reply.Success = true
+		// log.Println("srv.commitIndex", srv.commitIndex)
+		// log.Println("args.PrimaryCommit", args.PrimaryCommit)
+		for i:=srv.commitIndex+1; i<=args.PrimaryCommit; i++{
+			// log.Println("Prepare commit index:", i)
+			argu, _ := srv.log[i].(common.VrArgu)
+			srv.commitDB(argu)
+		}
 		srv.commitIndex = args.PrimaryCommit
+
+		// srv.commitDB()
 		srv.lastNormalView = srv.currentView
 		return nil
 	}	else if srv.currentView == args.View && len(srv.log) > args.Index {

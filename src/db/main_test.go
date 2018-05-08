@@ -635,7 +635,7 @@ func TestNetworkConnect(t *testing.T){
 }
 
 
-func RunLoginRPC(vp *vrproxy.VrProxy, username string){
+func RunRegisterRPC(vp *vrproxy.VrProxy, username string){
   vrArgu := &common.VrArgu{}
   args := common.SignArgs{username, "password"}
   vrArgu.Argu = args
@@ -644,11 +644,22 @@ func RunLoginRPC(vp *vrproxy.VrProxy, username string){
   vp.CallVr(vrArgu, vrReply)
 }
 
-func TestViewChange(t *testing.T){
+func ConfirmReplicateRegistration(nw *Network, username string) bool{
+  success := 0
+  for i:=0; i< len(nw.pbservers); i++ {
+    _, ok := nw.pbservers[i].db.user[username]
+    if(ok){
+      success += 1
+    }
+  }
+  return success > len(nw.pbservers)/2
+}
+
+func TestReplication(t *testing.T){
   nw := SetupTestNetwork(3, 14000,global_dumpClient)
   vp := vrproxy.CreateVrProxy(nw.clients[0], 14000, 3)
-  RunLoginRPC(vp, "name1")
-  assertEqualWithMsg(t, nw.pbservers[0].db.user["name1"].Name, "name1","TestViewChange1")
-  assertEqualWithMsg(t, nw.pbservers[1].db.user["name1"].Name, "name1","TestViewChange2")
-  assertEqualWithMsg(t, nw.pbservers[2].db.user["name1"].Name, "name1","TestViewChange3")
+  assertEqual(t, nw.pbservers[0].commitIndex, 0)
+  RunRegisterRPC(vp, "name1")
+  RunRegisterRPC(vp, "name2")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration")
 }
