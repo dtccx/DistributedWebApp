@@ -341,13 +341,16 @@ func (srv *PBServer) sendPrepare(server int, args *PrepareArgs, reply *PrepareRe
 // Prepare is the RPC handler for the Prepare RPC
 func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 	// Your code here
-	log.Println("start prepare from:", srv.me)
+	if(srv.me==1){
+		log.Println("target get prepare request")
+	}
+	// log.Println("start prepare from:", srv.me)
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 
 	if srv.currentView == args.View && len(srv.log) == args.Index {
-		log.Println("prepare1 from:", srv.me)
-		log.Println("Prepare1")
+		// log.Println("prepare1 from:", srv.me)
+		// log.Println("Prepare1")
 		srv.log = append(srv.log, args.Entry)
 		reply.View = srv.currentView
 		reply.Success = true
@@ -364,24 +367,26 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 		srv.lastNormalView = srv.currentView
 		return nil
 	}	else if srv.currentView == args.View && len(srv.log) > args.Index {
-		log.Println("prepare2 from:", srv.me)
+		// log.Println("prepare2 from:", srv.me)
 		//log's capaticy is bigger, so should return true, but not append,and not recover
-		log.Println("Prepare2")
+		// log.Println("Prepare2")
 		reply.View = args.View
 		reply.Success = true
 		return nil
 	} else {
-		log.Println("prepare3 from:", srv.me)
+		// log.Println("prepare3 from:", srv.me)
 		//reply.View = srv.currentView
 		reply.Success = false
 		//no way to recover
 		if(srv.currentView > args.View) {
 			return nil
 		}
-
+		if(srv.me==1){
+			log.Println("target start recovering")
+		}
 		//deal with other prepare, no improve, don't know why.
 		//go srv.sendPrepare(srv.me, args, reply)
-		log.Println("Prepare4")
+		// log.Println("Prepare4")
 		srv.status = RECOVERING
 		go func() {
 			recoveryArgs := &RecoveryArgs {
@@ -389,12 +394,18 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 				Server:		srv.me,
 			}
 			recoveryReply := &RecoveryReply{}
-			ok := (srv.peers[GetPrimary(args.View, len(srv.peers))].Call("PBServer.Recovery", recoveryArgs, recoveryReply)==nil)
+			recoveryErr := srv.peers[GetPrimary(args.View, len(srv.peers))].Call("PBServer.Recovery", recoveryArgs, recoveryReply)
+			// log.Println("recoveryErr:",recoveryErr)
+			ok := recoveryErr==nil
 			if ok == true && recoveryReply.Success == true {
 				srv.currentView = recoveryReply.View
 				srv.lastNormalView = recoveryReply.View
-				srv.commitIndex = recoveryReply.PrimaryCommit
 				srv.log = recoveryReply.Entries
+				for i:=srv.commitIndex+1; i<=args.PrimaryCommit; i++{
+					argu, _ := srv.log[i].(common.VrArgu)
+					srv.commitDB(argu)
+				}
+				srv.commitIndex = recoveryReply.PrimaryCommit
 				srv.status = NORMAL
 			}
 		}()
@@ -410,8 +421,9 @@ func (srv *PBServer) Prepare(args *PrepareArgs, reply *PrepareReply) error {
 }
 
 // Recovery is the RPC handler for the Recovery RPC
-func (srv *PBServer) Recovery(args *RecoveryArgs, reply *RecoveryReply) {
+func (srv *PBServer) Recovery(args *RecoveryArgs, reply *RecoveryReply) error{
 	// Your code here
+	log.Println("Recovery from:",srv.me)
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 	if srv.status == NORMAL {
@@ -422,7 +434,7 @@ func (srv *PBServer) Recovery(args *RecoveryArgs, reply *RecoveryReply) {
 	} else {
 		reply.Success = false
 	}
-
+	return nil
 }
 
 func (srv *PBServer) VrViewChange(args *common.VrViewChangeArgu, reply *common.VrViewChangeReply) error{

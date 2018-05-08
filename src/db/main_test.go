@@ -15,6 +15,7 @@ import (
   "encoding/json"
   "vrproxy"
   "encoding/gob"
+  "time"
 )
 
 func _assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
@@ -657,6 +658,11 @@ func ConfirmReplicateRegistration(nw *Network, username string) bool{
   return success > len(nw.pbservers)/2
 }
 
+func ConfirmReplicateRegistrationToServer(nw *Network,username string, serverIndex int) bool{
+  _, ok := nw.pbservers[serverIndex].db.user[username]
+  return ok
+}
+
 func TestReplication(t *testing.T){
   nw := SetupTestNetwork(3, 14000,global_dumpClient)
   vp := vrproxy.CreateVrProxy(nw.clients[0], 14000, 3)
@@ -665,6 +671,7 @@ func TestReplication(t *testing.T){
   RunRegisterRPC(vp, "name2")
   assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration")
 }
+
 
 func TestPrimaryDown(t *testing.T){
   startPort := 15000
@@ -676,4 +683,34 @@ func TestPrimaryDown(t *testing.T){
   RunRegisterRPC(vp, "name1")
   RunRegisterRPC(vp, "name2")
   assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration")
+}
+
+func TestReplication2(t *testing.T){
+  nw := SetupTestNetwork(3, 16000,global_dumpClient)
+  vp := vrproxy.CreateVrProxy(nw.clients[0], 16000, 3)
+  // assertEqual(t, nw.pbservers[0].commitIndex, 0)
+  RunRegisterRPC(vp, "name1")
+  RunRegisterRPC(vp, "name2")
+  RunRegisterRPC(vp, "name3")
+  RunRegisterRPC(vp, "name4")
+  RunRegisterRPC(vp, "name5")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name1"), true,"fail to replicate registration")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name2"), true,"fail to replicate registration")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name3"), true,"fail to replicate registration")
+  assertEqualWithMsg(t, ConfirmReplicateRegistration(nw, "name4"), true,"fail to replicate registration")
+}
+
+func TestRecovery(t *testing.T){
+  startPort := 17000
+  serverNum := 3
+  nw := SetupTestNetwork(serverNum, startPort,global_dumpClient)
+  vp := vrproxy.CreateVrProxyV2(startPort, serverNum)
+  nw.Disconnect(1)
+  RunRegisterRPC(vp, "name1")
+  RunRegisterRPC(vp, "name2")
+  nw.Connect(1)
+  RunRegisterRPC(vp, "name3")
+  time.Sleep(1000*time.Millisecond)
+  assertEqualWithMsg(t,ConfirmReplicateRegistrationToServer(nw,"name1",1),true, "fail to recover registration1")
+  assertEqualWithMsg(t,ConfirmReplicateRegistrationToServer(nw,"name2",1),true, "fail to recover registration2")
 }
