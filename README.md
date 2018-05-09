@@ -30,12 +30,12 @@
 ``` 	
 After starting these three servers, connect them to each other by typing anything into their terminals and return
 
-3.  Start the client:
+3.  Start the client in another terminal:
 ```
     go run  src/db/server.go src/db/vrcode.go src/db/db.go client
 ```  
 
-4.  That is it. The application is now ready on address localhost:8080
+4.  That is it. The application is now ready on address "localhost:8080"
 
 
 # Idea       
