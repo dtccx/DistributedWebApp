@@ -13,6 +13,8 @@ import (
   "vrproxy"
   "encoding/gob"
   "net"
+  "os"
+  "bufio"
 )
 
 type Arith struct {
@@ -70,13 +72,10 @@ func createServerV2(clients []*rpc.Client, serverIndex int, startingPort int) (*
   return client, ps
 }
 
-func main() {
-  serverNum := 3
-  clients := make([]*rpc.Client, serverNum)
-  for i := 0; i < serverNum; i++ {
-	   createServer(clients, i)
-	}
 
+
+
+func main() {
   gob.Register(common.VrArgu{})
   gob.Register(common.VrReply{})
   gob.Register(common.SignReply{})
@@ -101,36 +100,59 @@ func main() {
   gob.Register(common.FollowUserReply{})
   gob.Register(common.FollowListArgs{})
   gob.Register(common.FollowListReply{})
-
-  fs := http.FileServer(http.Dir("static"))
-  http.Handle("/", fs)
-
-  //get primary:
+  // log.Println("os.Args[1]",os.Args[1])
 
 
-  client, err := rpc.Dial("tcp", "localhost:8081")
-  if err != nil {
-    log.Fatal("dialing:", err)
+
+  // serverNum := 3
+  // clients := make([]*rpc.Client, serverNum)
+  // for i := 0; i < serverNum; i++ {
+	//    createServer(clients, i)
+	// }
+
+  serverAddresses := []string{"localhost:8081","localhost:8082","localhost:8083"}
+
+  if(os.Args[1]=="server"){
+    buf := bufio.NewReader(os.Stdin)
+    clients := make([]*rpc.Client, len(serverAddresses))
+    serverIndex, _ := strconv.Atoi(os.Args[3])
+    ps := Make(clients, serverIndex, 0)
+    server := rpc.NewServer()
+    server.Register(ps)
+    l,listenError := net.Listen("tcp", ":"+os.Args[2])
+    if(listenError!=nil){
+      log.Println(listenError)
+    }
+    go server.Accept(l)
+    fmt.Print("type anything to connect to clients > ")
+    buf.ReadBytes('\n')
+    for i:=0; i<len(serverAddresses); i++{
+      client, _ := rpc.Dial("tcp", serverAddresses[i])
+      clients[i] = client
+    }
+    fmt.Print("type anything to exit > ")
+    buf.ReadBytes('\n')
+  }else if(os.Args[1]=="client"){
+    client, err := rpc.Dial("tcp", "localhost:8081")
+    if err != nil {
+      log.Fatal("dialing:", err)
+    }
+    vp = vrproxy.CreateVrProxy(client, 8081, 3)
+    fs := http.FileServer(http.Dir("static"))
+    http.Handle("/", fs)
+    arith = &Arith{}
+    http.HandleFunc("/User/Login", login)
+    http.HandleFunc("/User/Register", signup)
+    http.HandleFunc("/SendMsg", sendMsg)
+    http.HandleFunc("/GetMsg", getMsg)
+    http.HandleFunc("/DelUser", delUser)
+    http.HandleFunc("/LikeMsg", likeMsg)
+    http.HandleFunc("/UnlikeMsg", unlikeMsg)
+    http.HandleFunc("/LikeList", likeList)
+    http.HandleFunc("/FollowUser", followUser)
+    http.HandleFunc("/FollowList", followList)
+    http.ListenAndServe(":8080", nil)
   }
-  vp = vrproxy.CreateVrProxy(client, 8081, 3)
-
-
-
-  arith = &Arith{client: client}
-
-  http.HandleFunc("/User/Login", login)
-  http.HandleFunc("/User/Register", signup)
-  http.HandleFunc("/SendMsg", sendMsg)
-  http.HandleFunc("/GetMsg", getMsg)
-  http.HandleFunc("/DelUser", delUser)
-  http.HandleFunc("/LikeMsg", likeMsg)
-  http.HandleFunc("/UnlikeMsg", unlikeMsg)
-  http.HandleFunc("/LikeList", likeList)
-  http.HandleFunc("/FollowUser", followUser)
-  http.HandleFunc("/FollowList", followList)
-  http.ListenAndServe(":8080", nil)
-  // log.Print("here")
-  // Tries to connect to localhost:1234 using HTTP protocol (The port on which rpc server is listening)
 }
 
 func followList(w http.ResponseWriter, r *http.Request) {
