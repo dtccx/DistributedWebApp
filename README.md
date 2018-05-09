@@ -22,47 +22,20 @@
 ```           
 
 
-2.  Run the server-frontend:
+2.  Start the three servers in three different terminals:
 ```
-    go run server.go      
+    go run  src/db/server.go src/db/vrcode.go src/db/db.go server 8081 0   
+    go run  src/db/server.go src/db/vrcode.go src/db/db.go server 8082 1
+    go run  src/db/server.go src/db/vrcode.go src/db/db.go server 8083 2
+``` 	
+After starting these three servers, connect them to each other by typing anything into their terminals and return
+
+3.  Start the client:
 ```
+    go run  src/db/server.go src/db/vrcode.go src/db/db.go client
+```  
 
-3.  Run the server-backend(Database): [removed in Version 3, you may not need to call this function]
-```
-    go run src/db/db.go
-```
-
-4.  Run the replicate server: (PBServer)
-
-    We run three replication in this case:
-
-    Please notice to enter parameter:
-    -num=/0-3/  
-    -port=/:8082-any/
-```
-    eg.
-    go run src/db/vrcode.go -num=0 -port=:8082
-    go run src/db/vrcode.go -num=1 -port=:8083
-    go run src/db/vrcode.go -num=2 -port=:8084
-
-```
-
-5.  enter the website:        
-    http://localhost:8080/index.html is the enter of the website.
-
-6.  To run unit test:(Add more tests in version2)       
-    We test Login Function, test Message is liked, test response and request in the web application Successfully !!                 
-    use the command:         
-    ```   
-    go test
-    ```
-    Test replication of the server:
-    ```
-    cd src/db
-    
-    go test -v -run 1AConcurrent
-    ```
-
+4.  That is it. The application is now ready on address localhost:8080
 
 
 # Idea       
